@@ -117,3 +117,27 @@ Vy_O2= zeros(size(Y));
 % Create empty arrays to store the robot's x and y positions
 % x = robot_pos(1);
 % y = robot_pos(2);
+
+%% Calculating action vectors for all points 
+for i = 1:numel(X)
+    position = [X(i), Y(i)];
+
+
+    actionVector = calculateActionVector(position, GoalpositionX, GoalpositionY, r, s, k);
+    if size(actionVector, 2) == 0
+    Vx_G(i) = 0;
+    else
+    Vx_G(i) = actionVector(1);
+    end
+    
+    actionVector2 = calculateActionVector2(position, xO, yO, r2, s2, k2);
+    Vx_O(i)=actionVector2(1); %obstacle
+    Vy_O(i)=actionVector2(2);
+
+    actionVector3 = calculateActionVector3(position, xO2, yO2, r3, s3, k3);
+    Vx_O2(i)=actionVector3(1); %obstacle2
+    Vy_O2(i)=actionVector3(2);
+
+    Vx=Vx_G+Vx_O+Vx_O2;  %sum
+    Vy=Vy_G+Vy_O+Vy_O2;
+end
