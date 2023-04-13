@@ -282,3 +282,42 @@ load blankPathMsg;
 [~,maxSize] = size(x);
 blankPoseMsgArray = repmat(blankPoseMsg,maxSize,1);
 blankPathMsg.Poses = blankPoseMsgArray;
+ %% Load Path data
+pubPath = rospublisher("path","nav_msgs/Path", "DataFormat","struct");
+pathMsg = blankPathMsg;
+
+
+
+
+pathMsg.Header.Seq = uint32(1);
+for i=1:maxSize
+    pathMsg.Header.Seq = pathMsg.Header.Seq + 1;
+    pathMsg.Poses(i).Pose.Position.X = x(i)*0.1;
+    pathMsg.Poses(i).Pose.Position.Y = y(i)*0.1;
+    pathMsg.Poses(i).Pose.Position.Z = 0;
+    pathMsg.Poses(i).Pose.Orientation.X = 0;
+    pathMsg.Poses(i).Pose.Orientation.Y = 0;
+    pathMsg.Poses(i).Pose.Orientation.Z = 0;
+    pathMsg.Poses(i).Pose.Orientation.W = 1;
+    pathMsg.Poses(i).Header.FrameId = 'map';
+end
+pathMsg.Header.FrameId = 'map';
+%[pubPath,pathMsg] = pathPublisher(x,y);
+
+send(pubPath,pathMsg);
+    
+end
+
+
+
+
+
+
+
+
+
+
+
+
+
+
