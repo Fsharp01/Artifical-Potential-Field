@@ -11,3 +11,4 @@ function actionVector = calculateActionVector(position, GoalpositionX, Goalposit
         actionVector = k * s * [cos(angle), sin(angle)];
     end
 end
+
