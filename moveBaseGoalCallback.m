@@ -34,14 +34,15 @@ global blankPathMsg
 global position
 global robot_pos
 
-
+transf_const=0.1;
 step_size=0.5;
+goal_treshold=0.01;
 
 
 
     % Access the position and orientation data from the message
-    GoalpositionX = msg3.Pose.Position.X/0.1;
-    GoalpositionY = msg3.Pose.Position.Y/0.1;
+    GoalpositionX = msg3.Pose.Position.X/transf_const;
+    GoalpositionY = msg3.Pose.Position.Y/transf_const;
     goal = [GoalpositionX, GoalpositionY];
     disp(['Goal: (' num2str(GoalpositionX) ', ' num2str(GoalpositionY) ')']) 
 
@@ -63,7 +64,7 @@ step_size=0.5;
     new_pos = robot_pos + step_size .* unit_vector;
 
       % Check if the robot has reached the goal position
-    if norm(new_pos - goal) < 0.01
+    if norm(new_pos - goal) < goal_treshold
         disp("Robot reached goal!");
         break;
     end
@@ -128,8 +129,8 @@ pathMsg = blankPathMsg;
 pathMsg.Header.Seq = uint32(1);
 for i=1:maxSize
     pathMsg.Header.Seq = pathMsg.Header.Seq + 1;
-    pathMsg.Poses(i).Pose.Position.X = x(i)*0.1;
-    pathMsg.Poses(i).Pose.Position.Y = y(i)*0.1;
+    pathMsg.Poses(i).Pose.Position.X = x(i)*transf_const;
+    pathMsg.Poses(i).Pose.Position.Y = y(i)*transf_const;
     pathMsg.Poses(i).Pose.Position.Z = 0;
     pathMsg.Poses(i).Pose.Orientation.X = 0;
     pathMsg.Poses(i).Pose.Orientation.Y = 0;
