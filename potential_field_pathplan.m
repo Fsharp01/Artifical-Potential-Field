@@ -141,9 +141,6 @@ hold on
 % Plot the path of the robot
 plot(x, y, 'b', 'LineWidth', 1.5);
 
-amclCallback(msg2);
-moveBaseGoalCallback(msg3);
-
 
 
 
