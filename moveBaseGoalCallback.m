@@ -110,8 +110,8 @@ end
   
     end
 
-load blankPoseMsg;
-load blankPathMsg;
+load blankPoseMsg-1;
+load blankPathMsg-1;
 
 %% Initilaize Path size
 [~,maxSize] = size(x);

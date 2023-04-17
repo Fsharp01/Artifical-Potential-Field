@@ -32,6 +32,7 @@ global s2
 global s3
 
 %% Define the constant
+
 global k
 global k2
 global k3
@@ -41,31 +42,6 @@ global position
 
 global blankPoseMsg
 global blankPathMsg
-
-
-%% Define a grid of points in the 2D space
-x = -15:0.5:15;
-y = -15:0.5:15;
-[X, Y] = meshgrid(x, y);
-
-
-sub2 = rossubscriber('agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped', @amclCallback);
-sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
-
-
-
-%% Define the starting position
-robot_pos = [0, 0]; % initializes robot_pos to (0,0)
-
-actionVector = [0, 0];
-     
-msg2 = receive(sub2);
-amclCallback([], msg2);
-disp(['Position: (' num2str(robot_pos(1)) ', ' num2str(robot_pos(2)) ')'])
-
-
-
-
 %% Define the constans
 
 %define the obstackles position
@@ -105,6 +81,29 @@ Vx_O = zeros(size(X));
 Vy_O = zeros(size(Y));
 Vx_O2 = zeros(size(X));
 Vy_O2= zeros(size(Y));
+
+
+%% Define a grid of points in the 2D space
+x = -15:0.5:15;
+y = -15:0.5:15;
+[X, Y] = meshgrid(x, y);
+
+
+sub2 = rossubscriber('agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped', @amclCallback);
+sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
+
+
+
+%% Define the starting position
+robot_pos = [0, 0]; % initializes robot_pos to (0,0)
+
+actionVector = [0, 0];
+     
+disp(['Position: (' num2str(robot_pos(1)) ', ' num2str(robot_pos(2)) ')'])
+
+
+
+
 
 % Create empty arrays to store the robot's x and y positions
 % x = robot_pos(1);
