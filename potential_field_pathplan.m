@@ -91,7 +91,7 @@ y = -15:0.5:15;
 
 sub2 = rossubscriber('agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped', @amclCallback);
 sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
-
+sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
 
 
 %% Define the starting position
