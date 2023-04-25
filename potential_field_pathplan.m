@@ -1,4 +1,4 @@
-masterhost='http://losi-pc:11311';
+masterhost='http://ubuntu:33667/';
 rosinit(masterhost)
 
 %% global Variables
@@ -86,6 +86,9 @@ Vy_O2= zeros(size(Y));
 %% Define a grid of points in the 2D space
 x = -15:0.5:15;
 y = -15:0.5:15;
+[row column] = size(global2d);
+x=row;
+y=column;
 [X, Y] = meshgrid(x, y);
 
 

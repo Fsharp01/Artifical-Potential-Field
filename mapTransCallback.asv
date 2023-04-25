@@ -1,4 +1,17 @@
 function mapTransCallback(msg)
-fix_map = rosReadOccupancyGrid(msg);
-show(fix_map);
+%load('globalmap.mat');
+local_map = rosReadOccupancyGrid(msg);
+
+
+    
+%show(fixmap);
+%title('Global Map')
+
+show(local_map)
+title('Real Time map')
+hold on
+
+
+%syncWith(globalmap, local_map);
+%show(globalmap)
 end
