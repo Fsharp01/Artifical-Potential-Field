@@ -1,4 +1,4 @@
-masterhost='http://ubuntu:33667/';
+masterhost='http://losi@ubuntu:39511//';
 rosinit(masterhost)
 
 %% global Variables
@@ -10,6 +10,7 @@ global GoalpositionX
 global GoalpositionY
 global pub_path
 global robot_pos
+
 
 global xO
 global yO
@@ -86,9 +87,7 @@ Vy_O2= zeros(size(Y));
 %% Define a grid of points in the 2D space
 x = -15:0.5:15;
 y = -15:0.5:15;
-[row column] = size(global2d);
-x=row;
-y=column;
+
 [X, Y] = meshgrid(x, y);
 
 
@@ -144,7 +143,7 @@ hold on
 % Plot the path of the robot
 plot(x, y, 'b', 'LineWidth', 1.5);
 
-
+rosshutdown;
 
 
 
