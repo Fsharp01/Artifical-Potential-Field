@@ -1,3 +1,4 @@
+rosshutdown
 masterhost='http://losi@ubuntu:39511//';
 rosinit(masterhost)
 
@@ -73,22 +74,47 @@ k2=3;
 k3=3;
 
 step_size = 0.4;
+%% Define a grid of points in the 2D space from the map info
+load mapInfo.mat;
+load OccupancyGridData.mat;
 
+transformconst=mapInfo.Resolution;
+mapWidth = mapInfo.Width;
+mapHeight = mapInfo.Height;
+
+[x,y] = meshgrid(1:mapWidth, 1:mapHeight);
+occupancymap = reshape(occupancyGridData, mapWidth, mapHeight)';
+occupancymap = flipud(occupancymap);
+
+% Define the color map
+cmap = [1 1 1; 0 0 0; 0.5 0.5 0.5];
+
+% Plot the occupancy map
+imagesc(x(:), y(:), occupancymap(:,:));
+colormap(cmap);
+colorbar;
+axis equal;
+xlabel('X');
+ylabel('Y');
+title('Occupancy Map');
+
+% Set the color map labels
+caxis([-1 100]);
+ticks = linspace(-1,100,6);
+labels = {'Unknown', 'Free', '', '', '', 'Occupied'};
+colorbar('Ticks',ticks,'TickLabels',labels);
 
 % Calculate the action vectors for all points in the grid
-Vx_G = zeros(size(X));
-Vy_G = zeros(size(X));
-Vx_O = zeros(size(X));
-Vy_O = zeros(size(Y));
-Vx_O2 = zeros(size(X));
-Vy_O2= zeros(size(Y));
+Vx_G = zeros(size(x));
+Vy_G = zeros(size(x));
+Vx_O = zeros(size(x));
+Vy_O = zeros(size(y));
+Vx_O2 = zeros(size(x));
+Vy_O2= zeros(size(y));
 
 
 %% Define a grid of points in the 2D space
-x = -15:0.5:15;
-y = -15:0.5:15;
 
-[X, Y] = meshgrid(x, y);
 
 
 sub2 = rossubscriber('agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped', @amclCallback);

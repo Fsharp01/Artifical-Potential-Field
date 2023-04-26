@@ -34,15 +34,15 @@ global blankPathMsg
 global position
 global robot_pos
 
-transf_const=0.1;
+
 step_size=0.5;
 goal_treshold=0.01;
 
 
 
     % Access the position and orientation data from the message
-    GoalpositionX = msg3.Pose.Position.X/transf_const;
-    GoalpositionY = msg3.Pose.Position.Y/transf_const;
+    GoalpositionX = msg3.Pose.Position.X;
+    GoalpositionY = msg3.Pose.Position.Y;
     goal = [GoalpositionX, GoalpositionY];
     disp(['Goal: (' num2str(GoalpositionX) ', ' num2str(GoalpositionY) ')']) 
 

@@ -11,7 +11,7 @@ function mapTransCallback(~, message)
     map = reshape(occupancyGridData, mapWidth, mapHeight)';
     
     % Create the x and y matrices
-    [x,y] = meshgrid(1:mapWidth, 1:mapHeight);
+     [x,y] = meshgrid(1:mapWidth, 1:mapHeight);
     
     % Example: plot the occupancy grid data with x and y coordinates
     figure(1)
