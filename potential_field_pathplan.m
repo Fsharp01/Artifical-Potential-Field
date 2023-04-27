@@ -78,31 +78,9 @@ step_size = 0.4;
 load mapInfo.mat;
 load OccupancyGridData.mat;
 
-transformconst=mapInfo.Resolution;
-mapWidth = mapInfo.Width;
-mapHeight = mapInfo.Height;
 
-[x,y] = meshgrid(1:mapWidth, 1:mapHeight);
-occupancymap = reshape(occupancyGridData, mapWidth, mapHeight)';
-occupancymap = flipud(occupancymap);
+[x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
 
-% Define the color map
-cmap = [1 1 1; 0 0 0; 0.5 0.5 0.5];
-
-% Plot the occupancy map
-imagesc(x(:), y(:), occupancymap(:,:));
-colormap(cmap);
-colorbar;
-axis equal;
-xlabel('X');
-ylabel('Y');
-title('Occupancy Map');
-
-% Set the color map labels
-caxis([-1 100]);
-ticks = linspace(-1,100,6);
-labels = {'Unknown', 'Free', '', '', '', 'Occupied'};
-colorbar('Ticks',ticks,'TickLabels',labels);
 
 % Calculate the action vectors for all points in the grid
 Vx_G = zeros(size(x));
@@ -117,17 +95,21 @@ Vy_O2= zeros(size(y));
 
 
 
-sub2 = rossubscriber('agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped', @amclCallback);
+%sub2 = rossubscriber('agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped', @amclCallback);
+sub2 = rossubscriber('/amcl_pose', 'geometry_msgs/PoseWithCovarianceStamped');
+sub2.NewMessageFcn = @(~, msg) amclCallback(msg);
 sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
 sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
 
 
 %% Define the starting position
-robot_pos = [0, 0]; % initializes robot_pos to (0,0)
+ % initializes robot_pos to (0,0)
 
 actionVector = [0, 0];
+startposx = robot_pos(1);
+startposy = robot_pos(2);
      
-disp(['Position: (' num2str(robot_pos(1)) ', ' num2str(robot_pos(2)) ')'])
+disp(['Position: (' num2str(startposx) ', ' num2str(startposy) ')'])
 
 
 
@@ -137,8 +119,8 @@ disp(['Position: (' num2str(robot_pos(1)) ', ' num2str(robot_pos(2)) ')'])
 % x = robot_pos(1);
 % y = robot_pos(2);
 %% Calculating action vectors for all points 
-for i = 1:numel(X)
-    position = [X(i), Y(i)];
+for i = 1:numel(x)
+    position = [x(i), y(i)];
 
 
     actionVector = calculateActionVector(position, GoalpositionX, GoalpositionY, r, s, k);
@@ -162,14 +144,14 @@ end
 
 
 %% Plot the vectors using quiver
-quiver(X, Y,Vx, Vy)
+quiver(x, y,Vx, Vy)
 
 hold on
 
 % Plot the path of the robot
 plot(x, y, 'b', 'LineWidth', 1.5);
 
-rosshutdown;
+
 
 
 

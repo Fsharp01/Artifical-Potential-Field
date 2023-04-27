@@ -1,15 +1,8 @@
-function amclCallback(~, msg2)
-    global robot_pos
-    global onceFlag
-    
-   
-        % Access the pose data from the message
-        positionX = msg2.Pose.Pose.Position.X;
-        positionY = msg2.Pose.Pose.Position.Y;
+function amclCallback(msg)
+    % Access the pose data from the message
+    positionX = msg.Pose.Pose.Position.X+(mapWidth/2);
+    positionY = msg.Pose.Pose.Position.Y+(mapHeight/2);
 
-        % Update robot_pos matrix
-        robot_pos(1) = positionX;
-        robot_pos(2) = positionY;
-
-   
+    % Update robot_pos matrix
+    robot_pos = [positionX; positionY];
 end

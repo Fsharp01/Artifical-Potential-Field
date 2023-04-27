@@ -1,4 +1,5 @@
 function mapTransCallback(~, message)
+%Held for live SLAM costmap
    % Access the occupancy grid data and metadata
     occupancyGridData = message.Data;
     mapInfo = message.Info;
