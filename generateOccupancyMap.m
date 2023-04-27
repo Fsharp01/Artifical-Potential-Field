@@ -25,4 +25,5 @@ function [x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData)
     ticks = linspace(-1,100,6);
     labels = {'Unknown', 'Free', '', '', '', 'Occupied'};
     colorbar('Ticks',ticks,'TickLabels',labels);
+    hold on
 end
