@@ -1,5 +1,5 @@
 rosshutdown
-masterhost='http://losi@ubuntu:39511//';
+masterhost='http://ubuntu:11311/';
 rosinit(masterhost)
 
 %% global Variables
@@ -124,11 +124,8 @@ for i = 1:numel(x)
 
 
     actionVector = calculateActionVector(position, GoalpositionX, GoalpositionY, r, s, k);
-    if size(actionVector, 2) == 0
-    Vx_G(i) = 0;
-    else
-    Vx_G(i) = actionVector(1);
-    end
+    Vx_G(i)=actionVector(1);
+    Vy_G(i)=actionVector(2);
     
     actionVector2 = calculateActionVector2(position, xO, yO, r2, s2, k2);
     Vx_O(i)=actionVector2(1); %obstacle
