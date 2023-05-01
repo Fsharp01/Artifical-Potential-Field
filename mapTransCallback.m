@@ -8,15 +8,22 @@ function mapTransCallback(~, message)
     mapWidth = mapInfo.Width;
     mapHeight = mapInfo.Height;
     
-    % Convert the occupancy grid data to a 2D matrix
-    map = reshape(occupancyGridData, mapWidth, mapHeight)';
-    
-    % Create the x and y matrices
-     [x,y] = meshgrid(1:mapWidth, 1:mapHeight);
-    
-    % Example: plot the occupancy grid data with x and y coordinates
-    figure(1)
-    surf(x,y,map);
-    colormap('gray')
-    axis equal
+    [x,y] = meshgrid((1:mapWidth)-(mapWidth/2-275/2), (1:mapHeight)-(mapHeight/2-245/2)); % shift the x and y arrays
+    occupancyMap = reshape(occupancyGridData, mapWidth, mapHeight)';
+    occupancyMap = flipud(occupancyMap);
+
+    cmap = [1 1 1; 0 0 0; 0.5 0.5 0.5];
+
+    imagesc(x(:), y(:), occupancyMap(:,:));
+    colormap(cmap);
+    colorbar;
+    axis equal;
+    xlabel('X');
+    ylabel('Y');
+    title('Live Occupancy Map');
+
+    caxis([-1 100]);
+    ticks = linspace(-1,100,6);
+    labels = {'Unknown', 'Free', '', '', '', 'Occupied'};
+    colorbar('Ticks',ticks,'TickLabels',labels);
 end

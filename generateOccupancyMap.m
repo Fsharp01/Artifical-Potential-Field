@@ -19,7 +19,7 @@ function [x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData)
     axis equal;
     xlabel('X');
     ylabel('Y');
-    title('Occupancy Map');
+    title('Global Occupancy Map');
 
     caxis([-1 100]);
     ticks = linspace(-1,100,6);

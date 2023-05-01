@@ -1,18 +1,22 @@
-function moveBaseGoalCallback(~, msg3)
-   global startposx
-   global startposy
-load mapInfo.mat;
-load OccupancyGridData.mat;
- mapWidth = mapInfo.Width;
- mapHeight = mapInfo.Height;
- resolution=0.1;
+% Define a grid of points in the 2D space
+x = -15:0.5:15;
+y= -15:0.5:15;
+[X, Y] = meshgrid(x, y);
 
-
-[X, Y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
-%Define Goal
 step_size = 0.1;
-goal_treshold=0.01;
+
+
+% Define the starting position
+x0 = -10;
+y0 = -10;
+robot_pos = [x0, y0];
+
+
+% Define the goal position and goal radius
+xG=6;
+yG=3;
 radius_G=1;
+goal = [xG, yG];
 spread=26;
 constant=5;
 r = radius_G;
@@ -47,22 +51,14 @@ k = constant; %goal constant
 k2=constant_O;
 k3=constant_O2;
 
+% VFH parameters
+hist_resolution = 20; % number of bins in the polar histogram
+hist_bin_size = 18; % size of each bin in degrees
+max_speed = 1; % maximum speed of the robot
+
 % Define the obstacle avoidance parameters
 obstacle_radius = 3;
 obstacle_threshold = 5;
-
-
-
-
-    % Access the position and orientation data from the message
-    GoalpositionX = floor(msg3.Pose.Position.X+(mapWidth/2)*resolution);
-    GoalpositionY = floor(msg3.Pose.Position.Y+(mapHeight/2)*resolution);
-    xG=GoalpositionX;
-    yG=GoalpositionY;
-    goal = [GoalpositionX, GoalpositionY];
-    disp(['Goal: (' num2str(GoalpositionX) ', ' num2str(GoalpositionY) ')']) 
-
-    
 
 
 % Calculate the action vectors for all points in the grid
@@ -74,20 +70,19 @@ Vx_O2 = zeros(size(X));
 Vy_O2= zeros(size(Y));
 
 % Create empty arrays to store the robot's x and y positions
-x1 = startposx;
-y1 = startposy;
-
+x1 = x0;
+y1 = y0;
 
 for i = 1:numel(X)
     position = [X(i), Y(i)];
-    actionVector = calculateActionVector1_1(position, xG, yG, r, s, k);
+    actionVector = calculateActionVector(position, xG, yG, r, s, k);
     Vx_G(i) = actionVector(1);  %goal
     Vy_G(i) = actionVector(2);
-    actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2);
+    actionVector2 = calculateActionVector2(position, xO, yO, r2, s2, k2);
     Vx_O(i)=actionVector2(1); %obstacle
     Vy_O(i)=actionVector2(2);
 
-    actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3);
+    actionVector3 = calculateActionVector3(position, xO2, yO2, r3, s3, k3);
     Vx_O2(i)=actionVector3(1); %obstacle2
     Vy_O2(i)=actionVector3(2);
 
@@ -217,61 +212,27 @@ end
 
 
 
-load blankPoseMsg-1;
-load blankPathMsg-1;
-
-%% Initilaize Path size
-[~,maxSize] = size(x);
-blankPoseMsgArray = repmat(blankPoseMsg,maxSize,1);
-blankPathMsg.Poses = blankPoseMsgArray;
-
-    %% Load Path data
-pubPath = rospublisher("path","nav_msgs/Path", "DataFormat","struct");
-pathMsg = blankPathMsg;
-
-
-
-
-pathMsg.Header.Seq = uint32(1);
-for i=1:maxSize
-    pathMsg.Header.Seq = pathMsg.Header.Seq + 1;
-    pathMsg.Poses(i).Pose.Position.X = x(i);
-    pathMsg.Poses(i).Pose.Position.Y = y(i);
-    pathMsg.Poses(i).Pose.Position.Z = 0;
-    pathMsg.Poses(i).Pose.Orientation.X = 0;
-    pathMsg.Poses(i).Pose.Orientation.Y = 0;
-    pathMsg.Poses(i).Pose.Orientation.Z = 0;
-    pathMsg.Poses(i).Pose.Orientation.W = 1;
-    pathMsg.Poses(i).Header.FrameId = 'map';
-end
-pathMsg.Header.FrameId = 'map';
-%[pubPath,pathMsg] = pathPublisher(x,y);
-
-send(pubPath,pathMsg);
-    
-end
 
 % Define a function to calculate the action vector for goal
-function actionVector = calculateActionVector1_1(position, xG, yG, r, s, k)
-
+function actionVector = calculateActionVector(position, xG, yG, r, s, k)
 x = position(1);
 y = position(2);
-d = sqrt(((x - xG)^2) + ((y - yG)^2));
+d = sqrt((x - xG)^2 + (y - yG)^2);
 angle = atan2(yG - y, xG - x);
 if d < r
 actionVector = [0, 0];
 elseif r <= d && d <= s + r
-actionVector = k * (d(i) - r) * [cos(angle), sin(angle)];
+actionVector = k * (d - r) * [cos(angle), sin(angle)];
 else
 actionVector = k * s * [cos(angle), sin(angle)];
 end
 end
 
 % Define a function to calculate the action vector for obstacle
-function actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2)
+function actionVector2 = calculateActionVector2(position, xO, yO, r2, s2, k2)
 x = position(1);
 y = position(2);
-d2 = sqrt((x-xO).^2 + (y - yO).^2);
+d2 = sqrt((x-xO)^2 + (y - yO)^2);
 angle2 = atan2(yO - y, xO - x);
 if d2 < r2
 actionVector2(1) = -sign(cos(angle2))*120;
@@ -286,10 +247,10 @@ end
 
 
 % Define a function to calculate the action vector for obstacle2
-function actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3)
+function actionVector3 = calculateActionVector3(position, xO2, yO2, r3, s3, k3)
 x = position(1);
 y = position(2);
-d3 = sqrt((x-xO2).^2 + (y - yO2).^2);
+d3 = sqrt((x-xO2)^2 + (y - yO2)^2);
 angle2 = atan2(yO2 - y, xO2 - x);
 if d3 < r3
 actionVector3(1) = -sign(cos(angle2))*80;
@@ -300,6 +261,4 @@ else
 actionVector3 = [0, 0];
 end
 end
-
-
 

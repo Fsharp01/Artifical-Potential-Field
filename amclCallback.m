@@ -1,8 +1,13 @@
-function amclCallback(msg)
+function amclCallback(~,msg)
+
+
     % Access the pose data from the message
-    positionX = msg.Pose.Pose.Position.X+(mapWidth/2);
-    positionY = msg.Pose.Pose.Position.Y+(mapHeight/2);
+    positionX = floor(msg.Pose.Pose.Position.X+(275/2));
+    positionY = floor(msg.Pose.Pose.Position.Y+(245/2));
 
     % Update robot_pos matrix
-    robot_pos = [positionX; positionY];
+     
+    startposx=positionX;
+    startposy=positionY
+     
 end
