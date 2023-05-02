@@ -1,5 +1,5 @@
 function [x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData)
-    transformconst = mapInfo.Resolution;
+    resolution =0.1;
     mapWidth = mapInfo.Width;
     mapHeight = mapInfo.Height;
 
@@ -7,8 +7,18 @@ function [x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData)
   %  occupancyMap = reshape(occupancyGridData, mapWidth, mapHeight)';
    % occupancyMap = flipud(occupancyMap);
 
-   [x,y] = meshgrid((1:mapWidth)-(mapWidth/2-275/2), (1:mapHeight)-(mapHeight/2-245/2)); % shift the x and y arrays
-    occupancyMap = reshape(occupancyGridData, mapWidth, mapHeight)';
+  %original big [x,y] = meshgrid(((mapWidth/2-mapWidth)*resolution):(floor(mapWidth/2)*resolution)), ((mapHeight/2-mapHeight)*resolution):(floor(mapHeight/2)*resolution)); % shift the x and y arrays
+ %13x15  x_coords = ((mapWidth/2-mapWidth)*resolution):(floor(mapWidth/2)*resolution);
+%y_coords = ((mapHeight/2-mapHeight)*resolution):(floor(mapHeight/2)*resolution);
+%[x, y] = meshgrid(x_coords, y_coords);
+xrange = -13.7:0.1:27.4;
+yrange = -12.2:0.1:24.4;
+[x, y] = meshgrid(xrange, yrange);
+x=double(x);
+y=double(y);
+
+
+   occupancyMap = reshape(occupancyGridData, mapWidth, mapHeight)';
     occupancyMap = flipud(occupancyMap);
 
     cmap = [1 1 1; 0 0 0; 0.5 0.5 0.5];

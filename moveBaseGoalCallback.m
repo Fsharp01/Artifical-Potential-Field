@@ -16,11 +16,12 @@ radius_G=1;
 spread=26;
 constant=5;
 r = radius_G;
+max_speed=1;
 
 %define the obstackle position and radius
 
-xO=-5;
-yO=-5;
+xO=-9.945;
+yO=4.914;
 obstacle = [xO, yO];
 radius_O=3;
 spread_O=10;
@@ -29,8 +30,8 @@ r2 = radius_O;
 
 %define the obstackle2 position and radius
 
-xO2=0;
-yO2=10;
+xO2=5.125;
+yO2=-5.039;
 obstacle2 = [xO2, yO2];
 radius_O2=3;
 spread_O2=10;
@@ -55,8 +56,8 @@ obstacle_threshold = 5;
 
 
     % Access the position and orientation data from the message
-    GoalpositionX = floor(msg3.Pose.Position.X+(mapWidth/2)*resolution);
-    GoalpositionY = floor(msg3.Pose.Position.Y+(mapHeight/2)*resolution);
+    GoalpositionX = msg3.Pose.Position.X;
+    GoalpositionY = msg3.Pose.Position.Y;
     xG=GoalpositionX;
     yG=GoalpositionY;
     goal = [GoalpositionX, GoalpositionY];
@@ -133,7 +134,7 @@ x1 = x1 + dx*dt;
 y1 = y1 + dy*dt;
 
  % Adjust the step size based on the distance traveled
-    dist_traveled = norm([x1-x_prev, y1-y_prev]);
+    dist_traveled = norm([double(x1-x_prev), double(y1-y_prev)]);
     if dist_traveled > step_size
         dx = step_size * dx / dist_traveled;
         dy = step_size * dy / dist_traveled;
@@ -221,7 +222,8 @@ load blankPoseMsg-1;
 load blankPathMsg-1;
 
 %% Initilaize Path size
-[~,maxSize] = size(x);
+maxSize = size(path,1);
+
 blankPoseMsgArray = repmat(blankPoseMsg,maxSize,1);
 blankPathMsg.Poses = blankPoseMsgArray;
 
@@ -235,8 +237,8 @@ pathMsg = blankPathMsg;
 pathMsg.Header.Seq = uint32(1);
 for i=1:maxSize
     pathMsg.Header.Seq = pathMsg.Header.Seq + 1;
-    pathMsg.Poses(i).Pose.Position.X = x(i)-((mapWidth/2)*resolution);
-    pathMsg.Poses(i).Pose.Position.Y = y(i)-((mapHeight/2)*resolution);
+    pathMsg.Poses(i).Pose.Position.X = path(i,1);
+    pathMsg.Poses(i).Pose.Position.Y = path(i,2);
     pathMsg.Poses(i).Pose.Position.Z = 0;
     pathMsg.Poses(i).Pose.Orientation.X = 0;
     pathMsg.Poses(i).Pose.Orientation.Y = 0;
@@ -256,12 +258,17 @@ function actionVector = calculateActionVector1_1(position, xG, yG, r, s, k)
 
 x = position(1);
 y = position(2);
-d = sqrt(((x - xG)^2) + ((y - yG)^2));
-angle = atan2(yG - y, xG - x);
+% Create a 2-by-2 matrix containing the coordinates of the two points
+% dist = [x y; xG yG];
+% 
+% % Calculate the Euclidean distance between the two points
+% d = pdist(dist, 'euclidean');
+d = sqrt(double((x - xG)^2) + double((y - yG)^2));
+angle = atan2(double(yG - y), double(xG - x));
 if d < r
 actionVector = [0, 0];
 elseif r <= d && d <= s + r
-actionVector = k * (d(i) - r) * [cos(angle), sin(angle)];
+actionVector = k * (d - r) * [cos(angle), sin(angle)];
 else
 actionVector = k * s * [cos(angle), sin(angle)];
 end
@@ -271,8 +278,12 @@ end
 function actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2)
 x = position(1);
 y = position(2);
-d2 = sqrt((x-xO).^2 + (y - yO).^2);
-angle2 = atan2(yO - y, xO - x);
+% dist = [x y; xO yO];
+% 
+% % Calculate the Euclidean distance between the two points
+% d2 = pdist(dist, 'euclidean');
+d2 = sqrt(double((x-xO)^2) + double((y - yO)^2));
+angle2 = atan2(double(yO - y), double(xO - x));
 if d2 < r2
 actionVector2(1) = -sign(cos(angle2))*120;
 actionVector2(2) = -sign(sin(angle2))*120;
@@ -289,8 +300,12 @@ end
 function actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3)
 x = position(1);
 y = position(2);
-d3 = sqrt((x-xO2).^2 + (y - yO2).^2);
-angle2 = atan2(yO2 - y, xO2 - x);
+% dist = [x y; xO2 yO2];
+% 
+% % Calculate the Euclidean distance between the two points
+% d3 = pdist(dist, 'euclidean');
+d3 = sqrt(double((x-xO2)^2) + double((y - yO2)^2));
+angle2 = atan2(double(yO2 - y), double(xO2 - x));
 if d3 < r3
 actionVector3(1) = -sign(cos(angle2))*80;
 actionVector3(2) = -sign(sin(angle2))*80;

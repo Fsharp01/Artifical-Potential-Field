@@ -48,8 +48,8 @@ sub2 = rossubscriber('agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStampe
 msg = receive(sub2);
 
 % Access the pose data from the message
-startposx = floor(msg.Pose.Pose.Position.X+(mapWidth/2)*resolution);
-startposy = floor(msg.Pose.Pose.Position.Y+(mapHeight/2)*resolution);
+startposx = msg.Pose.Pose.Position.X;
+startposy = msg.Pose.Pose.Position.Y;
 
 % Print the position to the command window
 %sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped');
