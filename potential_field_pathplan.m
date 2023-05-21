@@ -1,4 +1,4 @@
-clc;
+
 clear all;
 rosshutdown
 masterhost='http://192.168.32.129:1311';
@@ -13,6 +13,7 @@ global GoalpositionX
 global GoalpositionY
 global pub_path
 global robot_pos
+global GlobaloccupancyMap
 
 
 
@@ -34,7 +35,7 @@ load OccupancyGridData.mat;
  mapHeight = mapInfo.Height;
  resolution=0.1;
 
-[X, Y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
+[X, Y, GlobaloccupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
 
 
 
@@ -43,13 +44,15 @@ load OccupancyGridData.mat;
 
 
 
-sub2 = rossubscriber('agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped');
-
-msg = receive(sub2);
-
-% Access the pose data from the message
-startposx = msg.Pose.Pose.Position.X;
-startposy = msg.Pose.Pose.Position.Y;
+% sub2 = rossubscriber('agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped');
+% 
+% msg = receive(sub2);
+% 
+% % Access the pose data from the message
+% startposx = msg.Pose.Pose.Position.X;
+% startposy = msg.Pose.Pose.Position.Y;
+startposx = 0;
+startposy = 0;
 
 % Print the position to the command window
 %sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped');
