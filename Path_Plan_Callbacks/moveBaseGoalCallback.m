@@ -1,4 +1,5 @@
 function moveBaseGoalCallback(~, msg3)
+%moveBaseGoalCallback(xgoal,ygoal)
    global startposx
    global startposy
 load mapInfo.mat;

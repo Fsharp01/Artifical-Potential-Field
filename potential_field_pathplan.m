@@ -14,6 +14,7 @@ global GoalpositionY
 global pub_path
 global robot_pos
 global GlobaloccupancyMap
+global obstacle_coordinates
 
 
 
@@ -36,8 +37,6 @@ load OccupancyGridData.mat;
  resolution=0.1;
 
 [X, Y, GlobaloccupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
-
-
 
 
 %% Define a grid of points in the 2D space
