@@ -49,11 +49,6 @@ k = constant; %goal constant
 k2=constant_O;
 k3=constant_O2;
 
-% Define the obstacle avoidance parameters
-obstacle_radius = 3;
-obstacle_threshold = 5;
-
-
 
 
     % Access the position and orientation data from the message
@@ -108,6 +103,10 @@ dy = 0;
 x_prev = x1;
 y_prev = y1;
 
+% Define empty arrays to store dx and dy at each time step
+dx_array = [];
+dy_array = [];
+
 % Define the simulation parameters
 max_iterations = 1000;
 tolerance = 0.1;
@@ -119,11 +118,13 @@ safety_radius = 3;
 for i = 1:max_iterations
     % Calculate the index of the grid point that the robot is currently on
     [d, idx] = pdist2([X(:), Y(:)], [x1, y1], 'euclidean', 'Smallest', 1);
-     %Check if the robot has reached the goal
-if d < r
-fprintf('Goal reached in %d iterations\n', i);
-%break;
-end
+
+       % Check if the robot has reached the goal
+    if norm([x1 - xG, y1 - yG]) < r
+        fprintf('Goal reached after %d iterations\n', i);
+        break;
+    end
+
 % Calculate the action vector at the robot's current position
 actionVector = V(idx, :);
 % Calculate the new position and velocity of the robot
@@ -135,7 +136,7 @@ x1 = x1 + dx*dt;
 y1 = y1 + dy*dt;
 
  % Adjust the step size based on the distance traveled
-    dist_traveled = norm([double(x1-x_prev), double(y1-y_prev)]);
+  dist_traveled = norm([x1-x_prev, y1-y_prev]);
     if dist_traveled > step_size
         dx = step_size * dx / dist_traveled;
         dy = step_size * dy / dist_traveled;
@@ -149,43 +150,45 @@ if x1 < x1(1) || x1 > x1(end) || y1 < y1(1) || y1 > y1(end)
     break;
 end
 
-   % Check for obstacle collision
-    d_obstacle = pdist2([x1, y1], obstacle, 'euclidean')- safety_radius;
-    if d_obstacle < r2
-        % Adjust the velocity vector to steer away from the obstacle
-        theta = atan2(y1-obstacle(2), x1-obstacle(1));
-        dx = max_speed*cos(theta+pi/2);
-        dy = max_speed*sin(theta+pi/2);
-        
-        % Move the robot away from the obstacle
-        x1 = x1 + dx*dt;
-        y1 = y1 + dy*dt;
-        
-        % Check if the robot has moved outside the field
-        if x1 < x1(1) || x1 > x1(end) || y1 < y1(1) || y1 > y1(end)
-            fprintf('Robot moved outside the field after %d iterations\n', i);
-            break;
-        end
+ 
+ % Check for obstacle collision
+d_obstacle = pdist2([x1, y1], obstacle, 'euclidean') - r2;
+if d_obstacle < safety_radius
+    % Adjust the velocity vector to steer away from the obstacle
+    theta = atan2(y1 - obstacle(2), x1 - obstacle(1));
+    dx = max_speed * cos(theta + pi / 2);
+    dy = max_speed * sin(theta + pi / 2);
+
+    % Move the robot away from the obstacle while maintaining the safety radius
+    x1 = x1 + dx * dt;
+    y1 = y1 + dy * dt;
+
+    % Check if the robot has moved outside the field
+    if x1 < x(1) || x1 > x(end) || y1 < y(1) || y1 > y(end)
+        fprintf('Robot moved outside the field after %d iterations\n', i);
+        break;
     end
-    
-    % Check for obstacle2 collision
-    d_obstacle2 = pdist2([x1, y1], obstacle2, 'euclidean')- safety_radius;
-    if d_obstacle2 < r3
-        % Adjust the velocity vector to steer away from the obstacle
-        theta = atan2(y1-obstacle2(2), x1-obstacle2(1));
-        dx = max_speed*cos(theta+pi/2);
-        dy = max_speed*sin(theta+pi/2);
-        
-        % Move the robot away from the obstacle
-        x1 = x1 + dx*dt;
-        y1 = y1 + dy*dt;
-        
-       % Check if the robot has moved outside the field
-        if x1 < x1(1) || x1 > x1(end) || y1 < y1(1) || y1 > y1(end)
-            fprintf('Robot moved outside the field after %d iterations\n', i);
-            break;
-        end
+end
+
+
+   % Check for obstacle2 collision
+d_obstacle2 = pdist2([x1, y1], obstacle2, 'euclidean') - r3;
+if d_obstacle2 < safety_radius
+    % Adjust the velocity vector to steer away from the obstacle
+    theta = atan2(y1 - obstacle2(2), x1 - obstacle2(1));
+    dx = max_speed * cos(theta + pi / 2);
+    dy = max_speed * sin(theta + pi / 2);
+
+    % Move the robot away from the obstacle while maintaining the safety radius
+    x1 = x1 + dx * dt;
+    y1 = y1 + dy * dt;
+
+    % Check if the robot has moved outside the field
+    if x1 < x(1) || x1 > x(end) || y1 < y(1) || y1 > y(end)
+        fprintf('Robot moved outside the field after %d iterations\n', i);
+        break;
     end
+end
 
 % Store the robot's current position in the path array
 path(end+1, :) = [x1, y1];
@@ -214,6 +217,118 @@ end
 % Pause for a short time to allow for visualization
 pause(0.01);
 end
+
+% Create empty arrays to store the robot's x and y positions
+x2 = startposx;
+y2 = startposy;
+% Create empty arrays to store the steering angle and delta
+steering_angle_list = [];
+delta_list = [];
+% Create empty arrays to store the target points
+target_points = [];
+
+theta0 = pi/4;
+theta = theta0; % Initial orientation of the robot
+x_list = [x2];
+y_list = [y2];
+robot_position = [x2, y2];
+
+% Define the lookahead distance
+lookahead_distance = 2;
+
+% Define the vehicle parameters
+L = 0.25; % Wheelbase length
+max_steering_angle = pi/4; % Maximum steering angle limit
+
+% % Plot the path and the initial position of the robot
+% figure;
+% hold on;
+% plot(path(:, 1), path(:, 2), 'k--')
+% plot(x2, y2, 'ro')
+
+% Get the last point on the path
+last_point = path(end, :);
+
+for i = 1:max_iterations
+    if k > size(path, 1)
+        fprintf('Reached end of path in %d iterations\n', i);
+        break;
+    end
+
+     target_index = findTargetIndex(path, x2, y2, lookahead_distance, theta);
+
+    % Get the coordinates of the target point
+    x_target = path(target_index, 1);
+    y_target = path(target_index, 2);
+
+    % Calculate the distance from the robot to the target point
+    d_target = vecnorm([x_target - x2, y_target - y2], 2, 2);
+
+ % Calculate the distance to the last target point
+    d_last_target = norm([last_point(1) - x2, last_point(2) - y2]);
+
+    % Check if the robot has reached the last target point
+    if d_last_target < lookahead_distance
+        % Store the reached target point
+        target_points = [target_points; x_target, y_target];
+        fprintf('Reached end of path in %d iterations\n', i);
+        break;
+    end
+
+    % Calculate the new orientation
+    alpha = atan2(y_target - y2, x_target - x2);
+
+    % Calculate the desired curvature of the path
+    curvature = 2 * sin(alpha) / d_target;
+
+    % Calculate the desired steering angle using the desired curvature
+    desired_steering_angle = atan2(2*L*sin(alpha - theta), d_target);
+
+    % Limit the steering angle within the maximum steering angle limit
+    steering_angle = max(-max_steering_angle, min(max_steering_angle, desired_steering_angle));
+
+    % Calculate the change in orientation
+    theta_dot = max_speed * tan(steering_angle) / L;
+
+    % Update the orientation
+    theta = theta + theta_dot * dt;
+
+    % Calculate the new position of the robot
+    x2 = x2 + max_speed * cos(theta) * dt;
+    y2 = y2 + max_speed * sin(theta) * dt;
+
+    % Append new position to the lists
+    x_list(end + 1) = x2;
+    y_list(end + 1) = y2;
+
+    % Append steering angle and delta to the lists
+    steering_angle_list(end + 1) = desired_steering_angle;
+    delta_list(end + 1) = theta_dot;
+
+    % Check if the target index exceeds the size of the path
+    if target_index > size(path, 1)
+        fprintf('Reached end of path in %d iterations\n', i);
+        break;
+    end
+end
+
+% % Plot the target points reached by the robot
+% plot(target_points(:, 1), target_points(:, 2), 'r*');
+% % Plot the new path
+% plot(x_list, y_list, 'b-');
+% 
+% % Plot the steering angle and delta
+% figure;
+% subplot(2, 1, 1);
+% plot(steering_angle_list);
+% xlabel('Iteration');
+% ylabel('Steering Angle');
+% 
+% 
+% subplot(2, 1, 2);
+% plot(delta_list);
+% xlabel('Iteration');
+% ylabel('Delta');
 
 
 
