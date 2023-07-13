@@ -347,6 +347,10 @@ blankPathMsg.Poses = blankPoseMsgArray;
 pubPath = rospublisher("path","nav_msgs/Path", "DataFormat","struct");
 pathMsg = blankPathMsg;
 
+% Create a publisher for the '/cmd_vel' topic
+pub = rospublisher('/cmd_vel', 'geometry_msgs/Twist');
+% Create a Twist message
+twistMsg = rosmessage('geometry_msgs/Twist');
 
 
 
@@ -365,7 +369,16 @@ end
 pathMsg.Header.FrameId = 'map';
 %[pubPath,pathMsg] = pathPublisher(x,y);
 
+% Create a ROS Twist message
+twist_msg = rosmessage('geometry_msgs/Twist');
+twist_msg.Linear.X = max_speed;
+twist_msg.Angular.Z = steering_angle;
+
 send(pubPath,pathMsg);
+
+% Publish the Twist message to the '/cmd_vel' topic
+send(pub, twistMsg);
+
     
 end
 
