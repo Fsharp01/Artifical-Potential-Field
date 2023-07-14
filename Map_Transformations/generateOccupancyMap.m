@@ -1,4 +1,4 @@
-.function [x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData)
+function [x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData)
     resolution =0.1;
     mapWidth = mapInfo.Width;
     mapHeight = mapInfo.Height;

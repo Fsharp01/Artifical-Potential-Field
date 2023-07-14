@@ -351,7 +351,7 @@ pathMsg = blankPathMsg;
 pub = rospublisher('/cmd_vel', 'geometry_msgs/Twist');
 % Create a Twist message
 twistMsg = rosmessage('geometry_msgs/Twist');
-
+twist_msg = rosmessage('geometry_msgs/Twist');
 
 
 pathMsg.Header.Seq = uint32(1);
@@ -369,15 +369,26 @@ end
 pathMsg.Header.FrameId = 'map';
 %[pubPath,pathMsg] = pathPublisher(x,y);
 
-% Create a ROS Twist message
-twist_msg = rosmessage('geometry_msgs/Twist');
-twist_msg.Linear.X = max_speed;
-twist_msg.Angular.Z = steering_angle;
+for i = 1:numel(steering_angle_list)
+    
+    steering_angle = steering_angle_list(i);
+    
+    twist_msg.Linear.X = max_speed;
+    twistMsg.Angular.Z = steering_angle;
+    
+    % Publish the Twist message to the '/cmd_vel' topic
+    send(pub, twistMsg);
+    
+    pause(0.1); 
+end
+
+% % Create a ROS Twist message
+% twist_msg.Linear.X = max_speed;
+% twist_msg.Angular.Z = steering_angle;
 
 send(pubPath,pathMsg);
 
-% Publish the Twist message to the '/cmd_vel' topic
-send(pub, twistMsg);
+
 
     
 end
