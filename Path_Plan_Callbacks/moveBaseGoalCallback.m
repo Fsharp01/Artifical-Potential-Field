@@ -2,30 +2,33 @@ function moveBaseGoalCallback(~, msg3)
 %moveBaseGoalCallback(xgoal,ygoal)
    global startposx
    global startposy
-load mapInfo.mat;
-load OccupancyGridData.mat;
- mapWidth = mapInfo.Width;
- mapHeight = mapInfo.Height;
+   global X
+global Y
+global occupancyMap
+% load mapInfo.mat;
+% load OccupancyGridData.mat;
+global mapWidth 
+global mapHeight
  resolution=0.1;
 
 
-[X, Y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
+%[X, Y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
 %Define Goal
-step_size = 0.1;
+step_size = 0.095;
 goal_treshold=0.01;
 radius_G=1;
 spread=26;
 constant=5;
 r = radius_G;
-max_speed=1;
+max_speed=0.65;
 
 %define the obstackle position and radius
 
 xO=-9.945;
 yO=4.914;
 obstacle = [xO, yO];
-radius_O=3;
-spread_O=10;
+radius_O=3; %3
+spread_O=10; %10
 constant_O=-0.5;
 r2 = radius_O;
 
@@ -109,7 +112,7 @@ x_prev = x1;
 y_prev = y1;
 
 % Define the simulation parameters
-max_iterations = 1000;
+max_iterations = 300;
 tolerance = 0.1;
 dt = 0.1;
 path = [];
@@ -121,7 +124,7 @@ for i = 1:max_iterations
     [d, idx] = pdist2([X(:), Y(:)], [x1, y1], 'euclidean', 'Smallest', 1);
      %Check if the robot has reached the goal
 if d < r
-fprintf('Goal reached in %d iterations\n', i);
+%fprintf('Goal reached in %d iterations\n', i);
 %break;
 end
 % Calculate the action vector at the robot's current position
@@ -191,23 +194,23 @@ end
 path(end+1, :) = [x1, y1];
 
 % Plot the robot's position on the field
-% plot(x1, y1, 'bo');
-% hold on;
-% plot(xG, yG, 'g*');
-% plot(xO, yO, 'r');
-% plot(xO2, yO2, 'r');
-% plot([x_prev, x1], [y_prev, y1], 'b--'); % plot a line connecting the previous position to the current position
-% quiver(X, Y, Vx, Vy);
-% plot(path(:,1), path(:,2), 'b-', 'LineWidth', 2);
-% hold off;
-% axis equal;
-% axis([-15, 15, -15, 15]);
-% drawnow;
+plot(x1, y1, 'bo');
+hold on;
+plot(xG, yG, 'g*');
+plot(xO, yO, 'r');
+plot(xO2, yO2, 'r');
+plot([x_prev, x1], [y_prev, y1], 'b--'); % plot a line connecting the previous position to the current position
+quiver(X, Y, Vx, Vy);
+plot(path(:,1), path(:,2), 'b-', 'LineWidth', 2);
+hold off;
+axis equal;
+axis([-15, 15, -15, 15]);
+drawnow;
 
 
-% Check if the robot has reached the goal
+%Check if the robot has reached the goal
 if pdist2([x1, y1], goal, 'euclidean') < r
-    fprintf('Goal reached after %d iterations\n', i);
+     fprintf('Goal reached after %d iterations\n', i);
     break;
 end
 
@@ -229,13 +232,15 @@ blankPoseMsgArray = repmat(blankPoseMsg,maxSize,1);
 blankPathMsg.Poses = blankPoseMsgArray;
 
     %% Load Path data
-pubPath = rospublisher("path","nav_msgs/Path", "DataFormat","struct");
+pubPath = rospublisher("matlab_path","nav_msgs/Path", "DataFormat","struct");
+
 pathMsg = blankPathMsg;
 
 
 
 
 pathMsg.Header.Seq = uint32(1);
+pathMsg.Header.FrameId = 'map';
 for i=1:maxSize
     pathMsg.Header.Seq = pathMsg.Header.Seq + 1;
     pathMsg.Poses(i).Pose.Position.X = path(i,1);
@@ -246,11 +251,14 @@ for i=1:maxSize
     pathMsg.Poses(i).Pose.Orientation.Z = 0;
     pathMsg.Poses(i).Pose.Orientation.W = 1;
     pathMsg.Poses(i).Header.FrameId = 'map';
+
+
 end
-pathMsg.Header.FrameId = 'map';
+
+        send(pubPath,pathMsg);
+
 %[pubPath,pathMsg] = pathPublisher(x,y);
 
-send(pubPath,pathMsg);
     
 end
 
@@ -316,6 +324,3 @@ else
 actionVector3 = [0, 0];
 end
 end
-
-
-
