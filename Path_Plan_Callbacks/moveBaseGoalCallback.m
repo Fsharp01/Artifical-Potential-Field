@@ -184,7 +184,7 @@ if d_obstacle2 < safety_radius
     y1 = y1 + dy * dt;
 
     % Check if the robot has moved outside the field
-    if x1 < x(1) || x1 > x(end) || y1 < y(1) || y1 > y(end)
+    if x1 < X(1) || x1 > X(end) || y1 < Y(1) || y1 > Y(end)
         fprintf('Robot moved outside the field after %d iterations\n', i);
         break;
     end
