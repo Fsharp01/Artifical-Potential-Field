@@ -1,41 +1,44 @@
-function moveBaseGoalCallback(~, msg3)
-%moveBaseGoalCallback(xgoal,ygoal)
-   global startposx
-   global startposy
-   global X
-global Y
-global occupancyMap
-% load mapInfo.mat;
-% load OccupancyGridData.mat;
-global mapWidth 
-global mapHeight
- resolution=0.1;
+clear all
 
 
-%[X, Y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
-%Define Goal
-step_size = 0.095;
-goal_treshold=0.01;
+% Define a grid of points in the 2D space
+x = -30:0.5:30;
+y= -30:0.5:30;
+[X, Y] = meshgrid(x, y);
+
+step_size = 0.1;
+
+
+
+% Define the starting position
+x0 = -20;
+y0 = -10;
+robot_pos = [x0, y0];
+
+
+% Define the goal position and goal radius
+xG=6;
+yG=3;
 radius_G=1;
+goal = [xG, yG];
 spread=26;
 constant=5;
 r = radius_G;
-max_speed=0.65;
 
 %define the obstackle position and radius
 
-xO=-9.945;
-yO=4.914;
+xO=-5;
+yO=-5;
 obstacle = [xO, yO];
-radius_O=3; %3
-spread_O=10; %10
+radius_O=3;
+spread_O=10;
 constant_O=-0.5;
 r2 = radius_O;
 
 %define the obstackle2 position and radius
 
-xO2=5.125;
-yO2=-5.039;
+xO2=0;
+yO2=10;
 obstacle2 = [xO2, yO2];
 radius_O2=3;
 spread_O2=10;
@@ -54,17 +57,6 @@ k3=constant_O2;
 
 
 
-    % Access the position and orientation data from the message
-    GoalpositionX = msg3.Pose.Position.X;
-    GoalpositionY = msg3.Pose.Position.Y;
-    xG=GoalpositionX;
-    yG=GoalpositionY;
-    goal = [GoalpositionX, GoalpositionY];
-    disp(['Goal: (' num2str(GoalpositionX) ', ' num2str(GoalpositionY) ')']) 
-
-    
-
-
 % Calculate the action vectors for all points in the grid
 Vx_G = zeros(size(X));
 Vy_G = zeros(size(Y));
@@ -74,20 +66,19 @@ Vx_O2 = zeros(size(X));
 Vy_O2= zeros(size(Y));
 
 % Create empty arrays to store the robot's x and y positions
-x1 = startposx;
-y1 = startposy;
-
+x1 = x0;
+y1 = y0;
 
 for i = 1:numel(X)
     position = [X(i), Y(i)];
-    actionVector = calculateActionVector1_1(position, xG, yG, r, s, k);
+    actionVector = calculateActionVector(position, xG, yG, r, s, k);
     Vx_G(i) = actionVector(1);  %goal
     Vy_G(i) = actionVector(2);
-    actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2);
+    actionVector2 = calculateActionVector2(position, xO, yO, r2, s2, k2);
     Vx_O(i)=actionVector2(1); %obstacle
     Vy_O(i)=actionVector2(2);
 
-    actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3);
+    actionVector3 = calculateActionVector3(position, xO2, yO2, r3, s3, k3);
     Vx_O2(i)=actionVector3(1); %obstacle2
     Vy_O2(i)=actionVector3(2);
 
@@ -111,35 +102,37 @@ dx_array = [];
 dy_array = [];
 
 % Define the simulation parameters
-max_iterations = 300;
+max_iterations = 1000;
 tolerance = 0.1;
 dt = 0.1;
 path = [];
-safety_radius = 3;
+safety_radius = 2;
+max_speed= 1;
+
 
 % Run the simulation
 for i = 1:max_iterations
     % Calculate the index of the grid point that the robot is currently on
     [d, idx] = pdist2([X(:), Y(:)], [x1, y1], 'euclidean', 'Smallest', 1);
 
-       % Check if the robot has reached the goal
+    % Check if the robot has reached the goal
     if norm([x1 - xG, y1 - yG]) < r
         fprintf('Goal reached after %d iterations\n', i);
         break;
     end
-
 % Calculate the action vector at the robot's current position
 actionVector = V(idx, :);
 % Calculate the new position and velocity of the robot
 dx = dx + actionVector(1)*dt;
 dy = dy + actionVector(2)*dt;
+
 x_prev = x1; % store the previous position
 y_prev = y1;
 x1 = x1 + dx*dt;
 y1 = y1 + dy*dt;
 
  % Adjust the step size based on the distance traveled
-  dist_traveled = norm([x1-x_prev, y1-y_prev]);
+    dist_traveled = norm([x1-x_prev, y1-y_prev]);
     if dist_traveled > step_size
         dx = step_size * dx / dist_traveled;
         dy = step_size * dy / dist_traveled;
@@ -153,7 +146,6 @@ if x1 < x1(1) || x1 > x1(end) || y1 < y1(1) || y1 > y1(end)
     break;
 end
 
- 
  % Check for obstacle collision
 d_obstacle = pdist2([x1, y1], obstacle, 'euclidean') - r2;
 if d_obstacle < safety_radius
@@ -193,8 +185,11 @@ if d_obstacle2 < safety_radius
     end
 end
 
+
 % Store the robot's current position in the path array
 path(end+1, :) = [x1, y1];
+
+
 
 % Plot the robot's position on the field
 plot(x1, y1, 'bo');
@@ -208,22 +203,20 @@ plot(path(:,1), path(:,2), 'b-', 'LineWidth', 2);
 hold off;
 axis equal;
 axis([-15, 15, -15, 15]);
-drawnow;
 
 
-%Check if the robot has reached the goal
+
+% Check if the robot has reached the goal
 if pdist2([x1, y1], goal, 'euclidean') < r
-     fprintf('Goal reached after %d iterations\n', i);
+    fprintf('Goal reached after %d iterations\n', i);
     break;
 end
 
-% Pause for a short time to allow for visualization
-pause(0.01);
 end
 
 % Create empty arrays to store the robot's x and y positions
-x2 = startposx;
-y2 = startposy;
+x2 = x0;
+y2 = y0;
 % Create empty arrays to store the steering angle and delta
 steering_angle_list = [];
 delta_list = [];
@@ -243,11 +236,11 @@ lookahead_distance = 2;
 L = 0.25; % Wheelbase length
 max_steering_angle = pi/4; % Maximum steering angle limit
 
-% % Plot the path and the initial position of the robot
-% figure;
-% hold on;
-% plot(path(:, 1), path(:, 2), 'k--')
-% plot(x2, y2, 'ro')
+% Plot the path and the initial position of the robot
+figure;
+hold on;
+plot(path(:, 1), path(:, 2), 'k--')
+plot(x2, y2, 'ro')
 
 % Get the last point on the path
 last_point = path(end, :);
@@ -297,8 +290,8 @@ for i = 1:max_iterations
     theta = theta + theta_dot * dt;
 
     % Calculate the new position of the robot
-    x2 = x2 + max_speed * cos(theta) * dt;
-    y2 = y2 + max_speed * sin(theta) * dt;
+    x2 = x2 + max_speed * cos(theta) * dt
+    y2 = y2 + max_speed * sin(theta) * dt
 
     % Append new position to the lists
     x_list(end + 1) = x2;
@@ -315,84 +308,54 @@ for i = 1:max_iterations
     end
 end
 
-% % Plot the target points reached by the robot
-% plot(target_points(:, 1), target_points(:, 2), 'r*');
-% % Plot the new path
-% plot(x_list, y_list, 'b-');
-% 
-% % Plot the steering angle and delta
-% figure;
-% subplot(2, 1, 1);
-% plot(steering_angle_list);
-% xlabel('Iteration');
-% ylabel('Steering Angle');
-% 
-% 
-% subplot(2, 1, 2);
-% plot(delta_list);
-% xlabel('Iteration');
-% ylabel('Delta');
+% Plot the target points reached by the robot
+plot(target_points(:, 1), target_points(:, 2), 'r*');
+% Plot the new path
+plot(x_list, y_list, 'b-');
+
+% Plot the steering angle and delta
+figure;
+subplot(2, 1, 1);
+plot(steering_angle_list);
+xlabel('Iteration');
+ylabel('Steering Angle');
 
 
+subplot(2, 1, 2);
+plot(delta_list);
+xlabel('Iteration');
+ylabel('Delta');
 
 
+function target_index = findTargetIndex(path, x2, y2, lookahead_distance, theta)
+    target_index = 1;  % Initialize target index to the first point in the path
 
-load blankPoseMsg-1;
-load blankPathMsg-1;
+    % Iterate through each point in the path
+    for i = 1:size(path, 1)
+        % Calculate the distance from the robot to the current point in the path
+        d = sqrt((path(i, 1) - x2)^2 + (path(i, 2) - y2)^2);
 
-%% Initilaize Path size
-maxSize = size(path,1);
-
-blankPoseMsgArray = repmat(blankPoseMsg,maxSize,1);
-blankPathMsg.Poses = blankPoseMsgArray;
-
-    %% Load Path data
-pubPath = rospublisher("matlab_path","nav_msgs/Path", "DataFormat","struct");
-
-pathMsg = blankPathMsg;
-
-% Create a publisher for the '/cmd_vel' topic
-pub = rospublisher('/cmd_vel', 'geometry_msgs/Twist');
-% Create a Twist message
-twistMsg = rosmessage('geometry_msgs/Twist');
-twist_msg = rosmessage('geometry_msgs/Twist');
-
-
-pathMsg.Header.Seq = uint32(1);
-pathMsg.Header.FrameId = 'map';
-for i=1:maxSize
-    pathMsg.Header.Seq = pathMsg.Header.Seq + 1;
-    pathMsg.Poses(i).Pose.Position.X = path(i,1);
-    pathMsg.Poses(i).Pose.Position.Y = path(i,2);
-    pathMsg.Poses(i).Pose.Position.Z = 0;
-    pathMsg.Poses(i).Pose.Orientation.X = 0;
-    pathMsg.Poses(i).Pose.Orientation.Y = 0;
-    pathMsg.Poses(i).Pose.Orientation.Z = 0;
-    pathMsg.Poses(i).Pose.Orientation.W = 1;
-    pathMsg.Poses(i).Header.FrameId = 'map';
-
+        % Check if the current point is ahead of the robot and within the lookahead distance
+        if d > lookahead_distance && dot([path(i, 1) - x2, path(i, 2) - y2], [cos(theta), sin(theta)]) > 0
+            % Update the target index to the current point in the path
+            target_index = i;
+            break;
+        end
+    end
 
 end
 
-        send(pubPath,pathMsg);
 
-%[pubPath,pathMsg] = pathPublisher(x,y);
 
-    
-end
+
+
 
 % Define a function to calculate the action vector for goal
-function actionVector = calculateActionVector1_1(position, xG, yG, r, s, k)
-
+function actionVector = calculateActionVector(position, xG, yG, r, s, k)
 x = position(1);
 y = position(2);
-% Create a 2-by-2 matrix containing the coordinates of the two points
-% dist = [x y; xG yG];
-% 
-% % Calculate the Euclidean distance between the two points
-% d = pdist(dist, 'euclidean');
-d = sqrt(double((x - xG)^2) + double((y - yG)^2));
-angle = atan2(double(yG - y), double(xG - x));
+d = sqrt((x - xG)^2 + (y - yG)^2);
+angle = atan2(yG - y, xG - x);
 if d < r
 actionVector = [0, 0];
 elseif r <= d && d <= s + r
@@ -403,15 +366,11 @@ end
 end
 
 % Define a function to calculate the action vector for obstacle
-function actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2)
+function actionVector2 = calculateActionVector2(position, xO, yO, r2, s2, k2)
 x = position(1);
 y = position(2);
-% dist = [x y; xO yO];
-% 
-% % Calculate the Euclidean distance between the two points
-% d2 = pdist(dist, 'euclidean');
-d2 = sqrt(double((x-xO)^2) + double((y - yO)^2));
-angle2 = atan2(double(yO - y), double(xO - x));
+d2 = sqrt((x-xO)^2 + (y - yO)^2);
+angle2 = atan2(yO - y, xO - x);
 if d2 < r2
 actionVector2(1) = -sign(cos(angle2))*120;
 actionVector2(2) = -sign(sin(angle2))*120;
@@ -425,15 +384,11 @@ end
 
 
 % Define a function to calculate the action vector for obstacle2
-function actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3)
+function actionVector3 = calculateActionVector3(position, xO2, yO2, r3, s3, k3)
 x = position(1);
 y = position(2);
-% dist = [x y; xO2 yO2];
-% 
-% % Calculate the Euclidean distance between the two points
-% d3 = pdist(dist, 'euclidean');
-d3 = sqrt(double((x-xO2)^2) + double((y - yO2)^2));
-angle2 = atan2(double(yO2 - y), double(xO2 - x));
+d3 = sqrt((x-xO2)^2 + (y - yO2)^2);
+angle2 = atan2(yO2 - y, xO2 - x);
 if d3 < r3
 actionVector3(1) = -sign(cos(angle2))*80;
 actionVector3(2) = -sign(sin(angle2))*80;
@@ -443,3 +398,5 @@ else
 actionVector3 = [0, 0];
 end
 end
+
+

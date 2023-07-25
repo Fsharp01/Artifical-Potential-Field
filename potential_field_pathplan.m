@@ -41,7 +41,7 @@ load OccupancyGridData.mat;
 
 % Print the position to the command window
 sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
-sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallbackG);
+sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallbackAK);
 %sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
 %sub_laser=rossubscriber("/agent1/scan","sensor_msgs/LaserScan", @laserTransCallback);
 
