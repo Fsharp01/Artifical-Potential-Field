@@ -5,8 +5,6 @@ global startposy
 global X
 global Y
 global occupancyMap
-% load mapInfo.mat;
-% load OccupancyGridData.mat;
 global mapWidth 
 global mapHeight
  resolution=0.1;
@@ -16,8 +14,6 @@ Controllplot=0;
 PathnInitplot=0;
 MovingPathplot=0;
  
-
-%[X, Y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
 %Define Goal
 step_size = 0.05;
 goal_treshold=0.15;

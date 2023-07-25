@@ -11,6 +11,6 @@ function amclCallback(~,msg)
     % Update robot_pos matrix
      
     startposx=positionX;
-    startposy=positionY
+    startposy=positionY;
      
 end

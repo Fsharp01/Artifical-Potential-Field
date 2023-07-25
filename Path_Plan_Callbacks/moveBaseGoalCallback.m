@@ -1,18 +1,19 @@
 function moveBaseGoalCallback(~, msg3)
-%moveBaseGoalCallback(xgoal,ygoal)
-   global startposx
-   global startposy
-   global X
+
+global startposx
+global startposy
+global X
 global Y
 global occupancyMap
-% load mapInfo.mat;
-% load OccupancyGridData.mat;
 global mapWidth 
 global mapHeight
  resolution=0.1;
 
+%Plot flags
+Controllplot=0;
+PathnInitplot=0;
+MovingPathplot=0;
 
-%[X, Y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
 %Define Goal
 step_size = 0.095;
 goal_treshold=0.01;
@@ -54,7 +55,7 @@ k3=constant_O2;
 
 
 
-    % Access the position and orientation data from the message
+ % Access the position and orientation data from the message
     GoalpositionX = msg3.Pose.Position.X;
     GoalpositionY = msg3.Pose.Position.Y;
     xG=GoalpositionX;
@@ -187,7 +188,7 @@ if d_obstacle2 < safety_radius
     y1 = y1 + dy * dt;
 
     % Check if the robot has moved outside the field
-    if x1 < x(1) || x1 > x(end) || y1 < y(1) || y1 > y(end)
+    if x1 < X(1) || x1 > X(end) || y1 < Y(1) || y1 > Y(end)
         fprintf('Robot moved outside the field after %d iterations\n', i);
         break;
     end
@@ -197,18 +198,9 @@ end
 path(end+1, :) = [x1, y1];
 
 % Plot the robot's position on the field
-plot(x1, y1, 'bo');
-hold on;
-plot(xG, yG, 'g*');
-plot(xO, yO, 'r');
-plot(xO2, yO2, 'r');
-plot([x_prev, x1], [y_prev, y1], 'b--'); % plot a line connecting the previous position to the current position
-quiver(X, Y, Vx, Vy);
-plot(path(:,1), path(:,2), 'b-', 'LineWidth', 2);
-hold off;
-axis equal;
-axis([-15, 15, -15, 15]);
-drawnow;
+if MovingPathplot==1
+plotmovingPath(x1,y1,xG,yG,xO,yO,xO2,yO2,x_prev,y_prev,path,X,Y,Vx,Vy);
+end
 
 
 %Check if the robot has reached the goal
@@ -244,10 +236,9 @@ L = 0.25; % Wheelbase length
 max_steering_angle = pi/4; % Maximum steering angle limit
 
 % % Plot the path and the initial position of the robot
-% figure;
-% hold on;
-% plot(path(:, 1), path(:, 2), 'k--')
-% plot(x2, y2, 'ro')
+if PathnInitplot==1
+plotpathInit(path,x2,y2)
+end
 
 % Get the last point on the path
 last_point = path(end, :);
@@ -316,22 +307,9 @@ for i = 1:max_iterations
 end
 
 % % Plot the target points reached by the robot
-% plot(target_points(:, 1), target_points(:, 2), 'r*');
-% % Plot the new path
-% plot(x_list, y_list, 'b-');
-% 
-% % Plot the steering angle and delta
-% figure;
-% subplot(2, 1, 1);
-% plot(steering_angle_list);
-% xlabel('Iteration');
-% ylabel('Steering Angle');
-% 
-% 
-% subplot(2, 1, 2);
-% plot(delta_list);
-% xlabel('Iteration');
-% ylabel('Delta');
+if Controllplot==1
+    plotcontroll(target_points,x_list,y_list,steering_angle_list,delta_list);
+end
 
 
 
@@ -351,12 +329,6 @@ pubPath = rospublisher("matlab_path","nav_msgs/Path", "DataFormat","struct");
 
 pathMsg = blankPathMsg;
 
-% Create a publisher for the '/cmd_vel' topic
-pub = rospublisher('/cmd_vel', 'geometry_msgs/Twist');
-% Create a Twist message
-twistMsg = rosmessage('geometry_msgs/Twist');
-twist_msg = rosmessage('geometry_msgs/Twist');
-
 
 pathMsg.Header.Seq = uint32(1);
 pathMsg.Header.FrameId = 'map';
@@ -369,14 +341,14 @@ for i=1:maxSize
     pathMsg.Poses(i).Pose.Orientation.Y = 0;
     pathMsg.Poses(i).Pose.Orientation.Z = 0;
     pathMsg.Poses(i).Pose.Orientation.W = 1;
-    pathMsg.Poses(i).Header.FrameId = 'map';
+    pathMsg.Header.FrameId = 'map';
 
 
 end
 
         send(pubPath,pathMsg);
 
-%[pubPath,pathMsg] = pathPublisher(x,y);
+
 
     
 end
@@ -442,4 +414,45 @@ actionVector3 = -k3 * (s3+r3-d3) * [cos(angle2), sin(angle2)];
 else
 actionVector3 = [0, 0];
 end
+end
+function plotcontroll(target_points,x_list,y_list,steering_angle_list,delta_list)
+plot(target_points(:, 1), target_points(:, 2), 'r*');
+% Plot the new path
+plot(x_list, y_list, 'b-');
+
+% Plot the steering angle and delta
+figure;
+subplot(2, 1, 1);
+plot(steering_angle_list);
+xlabel('Iteration');
+ylabel('Steering Angle');
+
+
+subplot(2, 1, 2);
+plot(delta_list);
+xlabel('Iteration');
+ylabel('Delta');
+end
+
+function plotpathInit(path,x2,y2)
+figure;
+hold on;
+plot(path(:, 1), path(:, 2), 'k--')
+plot(x2, y2, 'ro')
+end
+
+function plotmovingPath(x1,y1,xG,yG,xO,yO,xO2,yO2,x_prev,y_prev,path,X,Y,Vx,Vy)
+
+plot(x1, y1, 'bo');
+hold on;
+plot(xG, yG, 'g*');
+plot(xO, yO, 'r');
+plot(xO2, yO2, 'r');
+plot([x_prev, x1], [y_prev, y1], 'b--'); % plot a line connecting the previous position to the current position
+quiver(X, Y, Vx, Vy);
+plot(path(:,1), path(:,2), 'b-', 'LineWidth', 2);
+hold off;
+axis equal;
+axis([-15, 15, -15, 15]);
+drawnow;
 end
