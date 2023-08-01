@@ -3,6 +3,7 @@ function steering_angle = calculate_steering_angle(path, startposx, startposy, t
 global d_last_target
 global lookahead_distance
 global target_index
+global theta
 
 % Create empty arrays to store the robot's x and y positions
 x2 = startposx;
@@ -12,7 +13,6 @@ steering_angle_list = [];
 delta_list = [];
 % Create empty arrays to store the target points
 target_points = [];
-theta = theta0; % Initial orientation of the robot
 x_list = [x2];
 y_list = [y2];
 robot_position = [x2, y2];

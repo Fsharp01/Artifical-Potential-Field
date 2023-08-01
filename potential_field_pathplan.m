@@ -1,7 +1,7 @@
 
 clear all;
 rosshutdown
-masterhost=['http://192.168.136.128:11311']; 
+masterhost='http://192.168.32.129:1311';
 rosinit(masterhost)
 
 %% global Variables
@@ -15,6 +15,8 @@ global pub_path
 global robot_pos
 global GlobaloccupancyMap
 global obstacle_coordinates
+global pub
+global twistMsg
 
 
 
@@ -43,22 +45,9 @@ load OccupancyGridData.mat;
 %% Define a grid of points in the 2D space
 
 
-
-sub2 = rossubscriber('agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped');
-
-msg = receive(sub2);
-
-% Access the pose data from the message
-startposx = msg.Pose.Pose.Position.X;
-startposy = msg.Pose.Pose.Position.Y;
-% startposx = 0;
-% startposy = 0;
-
-% Print the position to the command window
-%sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped');
-%sub2.NewMessageFcn = @(~, msg) amclCallback(msg);
+sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
 sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
-sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
+%sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
 
 
 
@@ -67,8 +56,6 @@ sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
     pub = rospublisher('/cmd_vel', 'geometry_msgs/Twist');
     % Create a Twist message
     twistMsg = rosmessage('geometry_msgs/Twist');
-    twist_msg = rosmessage('geometry_msgs/Twist');
-
 
 %% Define the starting position
  % initializes robot_pos to (0,0)

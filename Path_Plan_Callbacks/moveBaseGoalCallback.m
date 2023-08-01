@@ -187,7 +187,7 @@ if d_obstacle2 < safety_radius
     y1 = y1 + dy * dt;
 
     % Check if the robot has moved outside the field
-    if x1 < x(1) || x1 > x(end) || y1 < y(1) || y1 > y(end)
+    if x1 < X(1) || x1 > X(end) || y1 < Y(1) || y1 > Y(end)
         fprintf('Robot moved outside the field after %d iterations\n', i);
         break;
     end
@@ -348,7 +348,7 @@ blankPoseMsgArray = repmat(blankPoseMsg,maxSize,1);
 blankPathMsg.Poses = blankPoseMsgArray;
 
     %% Load Path data
-pubPath = rospublisher("path","nav_msgs/Path", "DataFormat","struct");
+pubPath = rospublisher("matlab_path","nav_msgs/Path", "DataFormat","struct");
 pathMsg = blankPathMsg;
 
 % % Create a publisher for the '/cmd_vel' topic
@@ -390,9 +390,9 @@ pathMsg.Header.FrameId = 'map';
 % twist_msg.Linear.X = max_speed;
 % twist_msg.Angular.Z = steering_angle;
 % 
-
 path_ready_flag = true;
 send(pubPath,pathMsg);
+
 
 
 

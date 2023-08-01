@@ -7,7 +7,10 @@ function amclCallback(~,msg)
    global lookahead_distance
    global target_index
    global path_ready_flag;
+   global pub
    global theta
+   global twistMsg
+
 
    target_index = 0;
    goal_reached = false;
@@ -24,28 +27,28 @@ function amclCallback(~,msg)
     startposy=positionY;
 
      % Wait until the path is ready 
-    while ~path_ready_flag
-        pause(0.1); 
-    end
+    if path_ready_flag
 
-        
-    if goal_reached
-        return; % If the goal is reached, do nothing and return from the callback
-    end
-
-    steering_angle = calculate_steering_angle(path, startposx, startposy, theta);
+         steering_angle = calculate_steering_angle(path, startposx, startposy, theta);
 
     if d_last_target < lookahead_distance ||  target_index > size(path, 1)
         printf('Reached end of path in %d iterations\n', i);
         goal_reached = true;
     end
 
-    twist_msg.Linear.X = max_speed;
+    twistMsg.Linear.X = max_speed;
     twistMsg.Angular.Z = steering_angle;
     
     % Publish the Twist message to the '/cmd_vel' topic
     send(pub, twistMsg);
-     
+    end
+
+        
+    if goal_reached
+         % If the goal is reached, do nothing and return from the callback
+        path_ready_flag=false;
+    end
+
 end
 
 
