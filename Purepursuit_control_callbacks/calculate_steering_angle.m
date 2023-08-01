@@ -4,6 +4,9 @@ global d_last_target
 global lookahead_distance
 global target_index
 global theta
+global startposx
+global startposy
+global path
 
 % Create empty arrays to store the robot's x and y positions
 x2 = startposx;

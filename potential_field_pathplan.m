@@ -17,6 +17,8 @@ global GlobaloccupancyMap
 global obstacle_coordinates
 global pub
 global twistMsg
+global pubPath
+global pathMsg
 
 
 
@@ -56,6 +58,8 @@ sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @mov
     pub = rospublisher('/cmd_vel', 'geometry_msgs/Twist');
     % Create a Twist message
     twistMsg = rosmessage('geometry_msgs/Twist');
+    pubPath = rospublisher("matlab_path","nav_msgs/Path", "DataFormat","struct");
+    pathMsg = blankPathMsg;
 
 %% Define the starting position
  % initializes robot_pos to (0,0)
