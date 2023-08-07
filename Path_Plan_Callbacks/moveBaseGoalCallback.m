@@ -123,11 +123,11 @@ for i = 1:max_iterations
     % Calculate the index of the grid point that the robot is currently on
     [d, idx] = pdist2([X(:), Y(:)], [x1, y1], 'euclidean', 'Smallest', 1);
 
-       % Check if the robot has reached the goal
-    if norm([x1 - xG, y1 - yG]) < r
-        fprintf('Goal reached after %d iterations\n', i);
-        break;
-    end
+    % Check if the robot has reached the goal
+if pdist2([x1, y1], goal, 'euclidean') < 1
+    fprintf('Goal reached after %d iterations\n', i);
+    break;
+end
 
 % Calculate the action vector at the robot's current position
 actionVector = V(idx, :);
@@ -155,42 +155,53 @@ if x1 < x1(1) || x1 > x1(end) || y1 < y1(1) || y1 > y1(end)
 end
 
  
- % Check for obstacle collision
-d_obstacle = pdist2([x1, y1], obstacle, 'euclidean') - r2;
-if d_obstacle < safety_radius
-    % Adjust the velocity vector to steer away from the obstacle
-    theta = atan2(y1 - obstacle(2), x1 - obstacle(1));
-    dx = max_speed * cos(theta + pi / 2);
-    dy = max_speed * sin(theta + pi / 2);
 
-    % Move the robot away from the obstacle while maintaining the safety radius
-    x1 = x1 + dx * dt;
-    y1 = y1 + dy * dt;
-
-    % Check if the robot has moved outside the field
-    if x1 < x(1) || x1 > x(end) || y1 < y(1) || y1 > y(end)
-        fprintf('Robot moved outside the field after %d iterations\n', i);
-        break;
+    % Check for obstacle collision
+    d_obstacle = pdist2([x1, y1], obstacle, 'euclidean') - safety_radius;
+    if d_obstacle < r2
+        % Adjust the velocity vector to steer away from the obstacle
+        theta = atan2(y1 - obstacle(2), x1 - obstacle(1));
+        dx = max_speed * cos(theta + pi / 2);
+        dy = max_speed * sin(theta + pi / 2);
+        
+        % Check if the robot is still within the safety distance
+        while d_obstacle < safety_radius
+            % Move the robot away from the obstacle
+            x1 = x1 + dx * dt;
+            y1 = y1 + dy * dt;
+            
+            % Update the distance to the obstacle
+            d_obstacle = pdist2([x1, y1], obstacle, 'euclidean') - safety_radius;
+            
+            % Check if the robot has moved outside the field
+            if x1 < x(1) || x1 > x(end) || y1 < y(1) || y1 > y(end)
+                fprintf('Robot moved outside the field after %d iterations\n', i);
+                break;
+            end
+        end
     end
-end
-
-
-   % Check for obstacle2 collision
-d_obstacle2 = pdist2([x1, y1], obstacle2, 'euclidean') - r3;
-if d_obstacle2 < safety_radius
+    
+    % Check for obstacle2 collision
+d_obstacle2 = pdist2([x1, y1], obstacle2, 'euclidean') - safety_radius;
+if d_obstacle2 < r3
     % Adjust the velocity vector to steer away from the obstacle
     theta = atan2(y1 - obstacle2(2), x1 - obstacle2(1));
     dx = max_speed * cos(theta + pi / 2);
     dy = max_speed * sin(theta + pi / 2);
 
-    % Move the robot away from the obstacle while maintaining the safety radius
-    x1 = x1 + dx * dt;
-    y1 = y1 + dy * dt;
+    while d_obstacle2 < safety_radius
+        % Move the robot away from obstacle2
+        x1 = x1 + dx * dt;
+        y1 = y1 + dy * dt;
 
-    % Check if the robot has moved outside the field
-    if x1 < X(1) || x1 > X(end) || y1 < Y(1) || y1 > Y(end)
-        fprintf('Robot moved outside the field after %d iterations\n', i);
-        break;
+        % Update the distance to obstacle2
+        d_obstacle2 = pdist2([x1, y1], obstacle2, 'euclidean') - safety_radius;
+
+        % Check if the robot has moved outside the field
+        if x1 < x(1) || x1 > x(end) || y1 < y(1) || y1 > y(end)
+            fprintf('Robot moved outside the field after %d iterations\n', i);
+            break;
+        end
     end
 end
 
