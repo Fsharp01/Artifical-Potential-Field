@@ -1,12 +1,19 @@
 function moveBaseGoalCallback(~, msg3)
-
-global startposx
-global startposy
-global X
-global Y
-global occupancyMap
-global mapWidth 
-global mapHeight
+%moveBaseGoalCallback(xgoal,ygoal)
+   global startposx
+   global startposy
+   global path
+   global path_ready_flag
+   global xG
+   global yG
+   global pub_path
+   global pathMsg
+   global pubPath
+   path_ready_flag = false;
+load mapInfo.mat;
+load OccupancyGridData.mat;
+ mapWidth = mapInfo.Width;
+ mapHeight = mapInfo.Height;
  resolution=0.1;
 
 %Plot flags
@@ -38,8 +45,8 @@ r2 = radius_O;
 xO2=5.125;
 yO2=-5.039;
 obstacle2 = [xO2, yO2];
-radius_O2=3;
-spread_O2=10;
+radius_O2=1;
+spread_O2=5;
 constant_O2=-0.5;
 r3 = radius_O2;
 
@@ -203,117 +210,15 @@ plotmovingPath(x1,y1,xG,yG,xO,yO,xO2,yO2,x_prev,y_prev,path,X,Y,Vx,Vy);
 end
 
 
-%Check if the robot has reached the goal
-if pdist2([x1, y1], goal, 'euclidean') < r
-     fprintf('Goal reached after %d iterations\n', i);
+% Check if the robot has reached the goal
+if abs(x1 - xG) <= 0.1 && abs(y1 - yG) <= 0.1
+    fprintf('Goal reached after %d iterations\n', i);
     break;
 end
 
 % Pause for a short time to allow for visualization
 pause(0.01);
 end
-
-% Create empty arrays to store the robot's x and y positions
-x2 = startposx;
-y2 = startposy;
-% Create empty arrays to store the steering angle and delta
-steering_angle_list = [];
-delta_list = [];
-% Create empty arrays to store the target points
-target_points = [];
-
-theta0 = pi/4;
-theta = theta0; % Initial orientation of the robot
-x_list = [x2];
-y_list = [y2];
-robot_position = [x2, y2];
-
-% Define the lookahead distance
-lookahead_distance = 2;
-
-% Define the vehicle parameters
-L = 0.25; % Wheelbase length
-max_steering_angle = pi/4; % Maximum steering angle limit
-
-% % Plot the path and the initial position of the robot
-if PathnInitplot==1
-plotpathInit(path,x2,y2)
-end
-
-% Get the last point on the path
-last_point = path(end, :);
-
-for i = 1:max_iterations
-    if k > size(path, 1)
-        fprintf('Reached end of path in %d iterations\n', i);
-        break;
-    end
-
-     target_index = findTargetIndex(path, x2, y2, lookahead_distance, theta);
-
-    % Get the coordinates of the target point
-    x_target = path(target_index, 1);
-    y_target = path(target_index, 2);
-
-    % Calculate the distance from the robot to the target point
-    d_target = vecnorm([x_target - x2, y_target - y2], 2, 2);
-
- % Calculate the distance to the last target point
-    d_last_target = norm([last_point(1) - x2, last_point(2) - y2]);
-
-    % Check if the robot has reached the last target point
-    if d_last_target < lookahead_distance
-        % Store the reached target point
-        target_points = [target_points; x_target, y_target];
-        fprintf('Reached end of path in %d iterations\n', i);
-        break;
-    end
-
-    % Calculate the new orientation
-    alpha = atan2(y_target - y2, x_target - x2);
-
-    % Calculate the desired curvature of the path
-    curvature = 2 * sin(alpha) / d_target;
-
-    % Calculate the desired steering angle using the desired curvature
-    desired_steering_angle = atan2(2*L*sin(alpha - theta), d_target);
-
-    % Limit the steering angle within the maximum steering angle limit
-    steering_angle = max(-max_steering_angle, min(max_steering_angle, desired_steering_angle));
-
-    % Calculate the change in orientation
-    theta_dot = max_speed * tan(steering_angle) / L;
-
-    % Update the orientation
-    theta = theta + theta_dot * dt;
-
-    % Calculate the new position of the robot
-    x2 = x2 + max_speed * cos(theta) * dt;
-    y2 = y2 + max_speed * sin(theta) * dt;
-
-    % Append new position to the lists
-    x_list(end + 1) = x2;
-    y_list(end + 1) = y2;
-
-    % Append steering angle and delta to the lists
-    steering_angle_list(end + 1) = desired_steering_angle;
-    delta_list(end + 1) = theta_dot;
-
-    % Check if the target index exceeds the size of the path
-    if target_index > size(path, 1)
-        fprintf('Reached end of path in %d iterations\n', i);
-        break;
-    end
-end
-
-% % Plot the target points reached by the robot
-if Controllplot==1
-    plotcontroll(target_points,x_list,y_list,steering_angle_list,delta_list);
-end
-
-
-
-
 
 load blankPoseMsg-1;
 load blankPathMsg-1;
@@ -326,9 +231,7 @@ blankPathMsg.Poses = blankPoseMsgArray;
 
     %% Load Path data
 pubPath = rospublisher("matlab_path","nav_msgs/Path", "DataFormat","struct");
-
 pathMsg = blankPathMsg;
-
 
 pathMsg.Header.Seq = uint32(1);
 pathMsg.Header.FrameId = 'map';
@@ -341,118 +244,20 @@ for i=1:maxSize
     pathMsg.Poses(i).Pose.Orientation.Y = 0;
     pathMsg.Poses(i).Pose.Orientation.Z = 0;
     pathMsg.Poses(i).Pose.Orientation.W = 1;
-    pathMsg.Header.FrameId = 'map';
-
-
+    pathMsg.Poses(i).Header.FrameId = 'map';
 end
+pathMsg.Header.FrameId = 'map';
 
-        send(pubPath,pathMsg);
+send(pubPath,pathMsg);
+path_ready_flag = true;
+
 
 
 
     
 end
 
-% Define a function to calculate the action vector for goal
-function actionVector = calculateActionVector1_1(position, xG, yG, r, s, k)
-
-x = position(1);
-y = position(2);
-% Create a 2-by-2 matrix containing the coordinates of the two points
-% dist = [x y; xG yG];
-% 
-% % Calculate the Euclidean distance between the two points
-% d = pdist(dist, 'euclidean');
-d = sqrt(double((x - xG)^2) + double((y - yG)^2));
-angle = atan2(double(yG - y), double(xG - x));
-if d < r
-actionVector = [0, 0];
-elseif r <= d && d <= s + r
-actionVector = k * (d - r) * [cos(angle), sin(angle)];
-else
-actionVector = k * s * [cos(angle), sin(angle)];
-end
-end
-
-% Define a function to calculate the action vector for obstacle
-function actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2)
-x = position(1);
-y = position(2);
-% dist = [x y; xO yO];
-% 
-% % Calculate the Euclidean distance between the two points
-% d2 = pdist(dist, 'euclidean');
-d2 = sqrt(double((x-xO)^2) + double((y - yO)^2));
-angle2 = atan2(double(yO - y), double(xO - x));
-if d2 < r2
-actionVector2(1) = -sign(cos(angle2))*120;
-actionVector2(2) = -sign(sin(angle2))*120;
-elseif r2 <= d2 && d2 <= s2 + r2
-actionVector2 = -k2 * (s2+r2-d2) * [cos(angle2), sin(angle2)];
-else
-actionVector2 = [0, 0];
-end
-end
 
 
 
-% Define a function to calculate the action vector for obstacle2
-function actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3)
-x = position(1);
-y = position(2);
-% dist = [x y; xO2 yO2];
-% 
-% % Calculate the Euclidean distance between the two points
-% d3 = pdist(dist, 'euclidean');
-d3 = sqrt(double((x-xO2)^2) + double((y - yO2)^2));
-angle2 = atan2(double(yO2 - y), double(xO2 - x));
-if d3 < r3
-actionVector3(1) = -sign(cos(angle2))*80;
-actionVector3(2) = -sign(sin(angle2))*80;
-elseif r3 <= d3 && d3 <= s3 + r3
-actionVector3 = -k3 * (s3+r3-d3) * [cos(angle2), sin(angle2)];
-else
-actionVector3 = [0, 0];
-end
-end
-function plotcontroll(target_points,x_list,y_list,steering_angle_list,delta_list)
-plot(target_points(:, 1), target_points(:, 2), 'r*');
-% Plot the new path
-plot(x_list, y_list, 'b-');
 
-% Plot the steering angle and delta
-figure;
-subplot(2, 1, 1);
-plot(steering_angle_list);
-xlabel('Iteration');
-ylabel('Steering Angle');
-
-
-subplot(2, 1, 2);
-plot(delta_list);
-xlabel('Iteration');
-ylabel('Delta');
-end
-
-function plotpathInit(path,x2,y2)
-figure;
-hold on;
-plot(path(:, 1), path(:, 2), 'k--')
-plot(x2, y2, 'ro')
-end
-
-function plotmovingPath(x1,y1,xG,yG,xO,yO,xO2,yO2,x_prev,y_prev,path,X,Y,Vx,Vy)
-
-plot(x1, y1, 'bo');
-hold on;
-plot(xG, yG, 'g*');
-plot(xO, yO, 'r');
-plot(xO2, yO2, 'r');
-plot([x_prev, x1], [y_prev, y1], 'b--'); % plot a line connecting the previous position to the current position
-quiver(X, Y, Vx, Vy);
-plot(path(:,1), path(:,2), 'b-', 'LineWidth', 2);
-hold off;
-axis equal;
-axis([-15, 15, -15, 15]);
-drawnow;
-end

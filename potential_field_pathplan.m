@@ -16,6 +16,10 @@ global pub_path
 global robot_pos
 global GlobaloccupancyMap
 global obstacle_coordinates
+global pub
+global twistMsg
+global pubPath
+global pathMsg
 
 
 
@@ -25,6 +29,7 @@ global   mapWidth
 global   mapHeight
 global startposx
 global startposy
+global path
 %% Define the constans
 
 
@@ -39,10 +44,22 @@ load OccupancyGridData.mat;
 [X, Y, GlobaloccupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
 
 
-% Print the position to the command window
+%% Define a grid of points in the 2D space
+
+
 sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
-sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallbackAK);
+sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
 %sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
+s
+
+
+ 
+        % Create a publisher for the '/cmd_vel' topic
+    pub = rospublisher('/cmd_vel', 'geometry_msgs/Twist');
+    % Create a Twist message
+    twistMsg = rosmessage('geometry_msgs/Twist');
+    pubPath = rospublisher("matlab_path","nav_msgs/Path", "DataFormat","struct");
+    pathMsg = blankPathMsg;
 %sub_laser=rossubscriber("/agent1/scan","sensor_msgs/LaserScan", @laserTransCallback);
 
 
