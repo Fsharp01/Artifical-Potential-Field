@@ -81,14 +81,14 @@ y1 = startposy;
 
 for i = 1:numel(X)
     position = [X(i), Y(i)];
-    actionVector = calculateActionVector1_1(position, xG, yG, r, s, k);
+    actionVector = calculateActionVector(position, xG, yG, r, s, k);
     Vx_G(i) = actionVector(1);  %goal
     Vy_G(i) = actionVector(2);
-    actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2);
+    actionVector2 = calculateActionVector2(position, xO, yO, r2, s2, k2);
     Vx_O(i)=actionVector2(1); %obstacle
     Vy_O(i)=actionVector2(2);
 
-    actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3);
+    actionVector3 = calculateActionVector3(position, xO2, yO2, r3, s3, k3);
     Vx_O2(i)=actionVector3(1); %obstacle2
     Vy_O2(i)=actionVector3(2);
 
@@ -364,106 +364,7 @@ end
     
 end
 
-% Define a function to calculate the action vector for goal
-function actionVector = calculateActionVector1_1(position, xG, yG, r, s, k)
-
-x = position(1);
-y = position(2);
-% Create a 2-by-2 matrix containing the coordinates of the two points
-% dist = [x y; xG yG];
-% 
-% % Calculate the Euclidean distance between the two points
-% d = pdist(dist, 'euclidean');
-d = sqrt(double((x - xG)^2) + double((y - yG)^2));
-angle = atan2(double(yG - y), double(xG - x));
-if d < r
-actionVector = [0, 0];
-elseif r <= d && d <= s + r
-actionVector = k * (d - r) * [cos(angle), sin(angle)];
-else
-actionVector = k * s * [cos(angle), sin(angle)];
-end
-end
-
-% Define a function to calculate the action vector for obstacle
-function actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2)
-x = position(1);
-y = position(2);
-% dist = [x y; xO yO];
-% 
-% % Calculate the Euclidean distance between the two points
-% d2 = pdist(dist, 'euclidean');
-d2 = sqrt(double((x-xO)^2) + double((y - yO)^2));
-angle2 = atan2(double(yO - y), double(xO - x));
-if d2 < r2
-actionVector2(1) = -sign(cos(angle2))*120;
-actionVector2(2) = -sign(sin(angle2))*120;
-elseif r2 <= d2 && d2 <= s2 + r2
-actionVector2 = -k2 * (s2+r2-d2) * [cos(angle2), sin(angle2)];
-else
-actionVector2 = [0, 0];
-end
-end
 
 
 
-% Define a function to calculate the action vector for obstacle2
-function actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3)
-x = position(1);
-y = position(2);
-% dist = [x y; xO2 yO2];
-% 
-% % Calculate the Euclidean distance between the two points
-% d3 = pdist(dist, 'euclidean');
-d3 = sqrt(double((x-xO2)^2) + double((y - yO2)^2));
-angle2 = atan2(double(yO2 - y), double(xO2 - x));
-if d3 < r3
-actionVector3(1) = -sign(cos(angle2))*80;
-actionVector3(2) = -sign(sin(angle2))*80;
-elseif r3 <= d3 && d3 <= s3 + r3
-actionVector3 = -k3 * (s3+r3-d3) * [cos(angle2), sin(angle2)];
-else
-actionVector3 = [0, 0];
-end
-end
-function plotcontroll(target_points,x_list,y_list,steering_angle_list,delta_list)
-plot(target_points(:, 1), target_points(:, 2), 'r*');
-% Plot the new path
-plot(x_list, y_list, 'b-');
 
-% Plot the steering angle and delta
-figure;
-subplot(2, 1, 1);
-plot(steering_angle_list);
-xlabel('Iteration');
-ylabel('Steering Angle');
-
-
-subplot(2, 1, 2);
-plot(delta_list);
-xlabel('Iteration');
-ylabel('Delta');
-end
-
-function plotpathInit(path,x2,y2)
-figure;
-hold on;
-plot(path(:, 1), path(:, 2), 'k--')
-plot(x2, y2, 'ro')
-end
-
-function plotmovingPath(x1,y1,xG,yG,xO,yO,xO2,yO2,x_prev,y_prev,path,X,Y,Vx,Vy)
-
-plot(x1, y1, 'bo');
-hold on;
-plot(xG, yG, 'g*');
-plot(xO, yO, 'r');
-plot(xO2, yO2, 'r');
-plot([x_prev, x1], [y_prev, y1], 'b--'); % plot a line connecting the previous position to the current position
-quiver(X, Y, Vx, Vy);
-plot(path(:,1), path(:,2), 'b-', 'LineWidth', 2);
-hold off;
-axis equal;
-axis([-15, 15, -15, 15]);
-drawnow;
-end
