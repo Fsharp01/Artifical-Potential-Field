@@ -20,7 +20,7 @@ load OccupancyGridData.mat;
 [X, Y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData);
 %Define Goal
 step_size = 0.1;
-goal_treshold=0.01;
+goal_treshold=0.001;
 radius_G=1;
 spread=26;
 constant=5;
@@ -32,8 +32,8 @@ max_speed=1;
 xO=-9.945;
 yO=4.914;
 obstacle = [xO, yO];
-radius_O=3;
-spread_O=10;
+radius_O=1;
+spread_O=5;
 constant_O=-0.5;
 r2 = radius_O;
 
@@ -42,8 +42,8 @@ r2 = radius_O;
 xO2=5.125;
 yO2=-5.039;
 obstacle2 = [xO2, yO2];
-radius_O2=3;
-spread_O2=10;
+radius_O2=1;
+spread_O2=5;
 constant_O2=-0.5;
 r3 = radius_O2;
 
@@ -202,22 +202,22 @@ end
 path(end+1, :) = [x1, y1];
 
 % Plot the robot's position on the field
-% plot(x1, y1, 'bo');
-% hold on;
-% plot(xG, yG, 'g*');
-% plot(xO, yO, 'r');
-% plot(xO2, yO2, 'r');
-% plot([x_prev, x1], [y_prev, y1], 'b--'); % plot a line connecting the previous position to the current position
-% quiver(X, Y, Vx, Vy);
-% plot(path(:,1), path(:,2), 'b-', 'LineWidth', 2);
-% hold off;
-% axis equal;
-% axis([-15, 15, -15, 15]);
-% drawnow;
+plot(x1, y1, 'bo');
+hold on;
+plot(xG, yG, 'g*');
+plot(xO, yO, 'r');
+plot(xO2, yO2, 'r');
+plot([x_prev, x1], [y_prev, y1], 'b--'); % plot a line connecting the previous position to the current position
+quiver(X, Y, Vx, Vy);
+plot(path(:,1), path(:,2), 'b-', 'LineWidth', 2);
+hold off;
+axis equal;
+axis([-15, 15, -15, 15]);
+drawnow;
 
 
 % Check if the robot has reached the goal
-if pdist2([x1, y1], goal, 'euclidean') < r
+if abs(x1 - xG) <= 0.1 && abs(y1 - yG) <= 0.1
     fprintf('Goal reached after %d iterations\n', i);
     break;
 end
@@ -263,61 +263,7 @@ path_ready_flag = true;
     
 end
 
-% Define a function to calculate the action vector for goal
-function actionVector = calculateActionVector1_1(position, xG, yG, r, s, k)
 
-x = position(1);
-y = position(2);
-% 
-% % Calculate the Euclidean distance between the two points
-d = sqrt(double((x - xG)^2) + double((y - yG)^2));
-angle = atan2(double(yG - y), double(xG - x));
-if d < r
-actionVector = [0, 0];
-elseif r <= d && d <= s + r
-actionVector = k * (d - r) * [cos(angle), sin(angle)];
-else
-actionVector = k * s * [cos(angle), sin(angle)];
-end
-end
-
-% Define a function to calculate the action vector for obstacle
-function actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2)
-x = position(1);
-y = position(2);
-% dist = [x y; xO yO];
-
-d2 = sqrt(double((x-xO)^2) + double((y - yO)^2));
-angle2 = atan2(double(yO - y), double(xO - x));
-if d2 < r2
-actionVector2(1) = -sign(cos(angle2))*120;
-actionVector2(2) = -sign(sin(angle2))*120;
-elseif r2 <= d2 && d2 <= s2 + r2
-actionVector2 = -k2 * (s2+r2-d2) * [cos(angle2), sin(angle2)];
-else
-actionVector2 = [0, 0];
-end
-end
-
-
-
-% Define a function to calculate the action vector for obstacle2
-function actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3)
-x = position(1);
-y = position(2);
-% dist = [x y; xO2 yO2];
-% 
-d3 = sqrt(double((x-xO2)^2) + double((y - yO2)^2));
-angle2 = atan2(double(yO2 - y), double(xO2 - x));
-if d3 < r3
-actionVector3(1) = -sign(cos(angle2))*80;
-actionVector3(2) = -sign(sin(angle2))*80;
-elseif r3 <= d3 && d3 <= s3 + r3
-actionVector3 = -k3 * (s3+r3-d3) * [cos(angle2), sin(angle2)];
-else
-actionVector3 = [0, 0];
-end
-end
 
 
 

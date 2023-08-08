@@ -46,13 +46,6 @@ last_point = path(end, :);
  % Calculate the distance to the last target point
     d_last_target = norm([last_point(1) - x2, last_point(2) - y2]);
 
-%     % Check if the robot has reached the last target point
-%     if d_last_target < lookahead_distance
-%         % Store the reached target point
-%         target_points = [target_points; x_target, y_target];
-%         fprintf('Reached end of path in %d iterations\n', i);
-%         break;
-%     end
 
     % Calculate the new orientation
     alpha = atan2(y_target - y2, x_target - x2);
@@ -69,13 +62,6 @@ last_point = path(end, :);
     % Calculate the change in orientation
     theta_dot = max_speed * tan(steering_angle) / L;
 
-%     % Update the orientation
-%     theta = theta + theta_dot * dt;
-% 
-%     % Calculate the new position of the robot
-%     x2 = x2 + max_speed * cos(theta) * dt;
-%     y2 = y2 + max_speed * sin(theta) * dt;
-
     % Append new position to the lists
     x_list(end + 1) = x2;
     y_list(end + 1) = y2;
@@ -83,12 +69,6 @@ last_point = path(end, :);
     % Append steering angle and delta to the lists
     steering_angle_list(end + 1) = desired_steering_angle;
     delta_list(end + 1) = theta_dot;
-
-%     % Check if the target index exceeds the size of the path
-%     if target_index > size(path, 1)
-%         fprintf('Reached end of path in %d iterations\n', i);
-%         break;
-%     end
 
     % Return the steering angle
     steering_angle = steering_angle_list;

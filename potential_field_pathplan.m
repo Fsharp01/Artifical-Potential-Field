@@ -50,7 +50,7 @@ load OccupancyGridData.mat;
 sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
 sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
 %sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
-
+s
 
 
  
