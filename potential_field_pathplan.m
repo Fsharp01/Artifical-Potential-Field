@@ -30,9 +30,14 @@ global   mapHeight
 global startposx
 global startposy
 global path
+global Controllplot
+global PathnInitplot
+global MovingPathplot
 %% Define the constans
-
-
+%plots
+ Controllplot=0;
+ PathnInitplot=0;
+ MovingPathplot=0;
 
 step_size = 0.4;
 %% Define a grid of points in the 2D space from the map info
@@ -50,7 +55,6 @@ load OccupancyGridData.mat;
 sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
 sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
 %sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
-s
 
 
  

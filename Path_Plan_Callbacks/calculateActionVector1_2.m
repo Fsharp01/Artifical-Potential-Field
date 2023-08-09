@@ -4,8 +4,8 @@ x = position(1);
 y = position(2);
 % dist = [x y; xO yO];
 
-d2 = sqrt(double((x-xO)^2) + double((y - yO)^2));
-angle2 = atan2(double(yO - y), double(xO - x));
+d2 = sqrt((x-xO)^2 + (y - yO)^2);
+angle2 = atan2(yO - y, xO - x);
 if d2 < r2
 actionVector2(1) = -sign(cos(angle2))*120;
 actionVector2(2) = -sign(sin(angle2))*120;

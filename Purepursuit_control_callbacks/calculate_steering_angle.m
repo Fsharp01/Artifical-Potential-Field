@@ -7,6 +7,11 @@ global theta
 global startposx
 global startposy
 global path
+global Controllplot
+global PathnInitplot
+global MovingPathplot
+global last_point
+
 
 % Create empty arrays to store the robot's x and y positions
 x2 = startposx;
@@ -21,7 +26,7 @@ y_list = [y2];
 robot_position = [x2, y2];
 
 % Define the lookahead distance
-lookahead_distance = 2;
+lookahead_distance = 1;
 max_speed = 1;
 dt=0.1;
 max_iterations = 1000;
@@ -29,7 +34,10 @@ max_iterations = 1000;
 L = 0.25; % Wheelbase length
 max_steering_angle = pi/4; % Maximum steering angle limit
 
-
+% % Plot the path and the initial position of the robot
+if PathnInitplot==1
+plotpathInit(path,x2,y2)
+end
 % Get the last point on the path
 last_point = path(end, :);
 
@@ -72,4 +80,9 @@ last_point = path(end, :);
 
     % Return the steering angle
     steering_angle = steering_angle_list;
+
+    % % Plot the target points reached by the robot
+if Controllplot==1
+    plotcontroll(target_points,x_list,y_list,steering_angle_list,delta_list);
+end
 end

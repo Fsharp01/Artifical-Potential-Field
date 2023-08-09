@@ -13,6 +13,7 @@ function amclCallback(~,msg)
    global xG
    global yG
    
+ 
 Gx=xG;
 Gy=yG;
 
@@ -32,31 +33,35 @@ Gy=yG;
     startposx=positionX;
     startposy=positionY;
 
-     % Wait until the path is ready 
+
+   
     if path_ready_flag
+             
 
          steering_angle = calculate_steering_angle(path, startposx, startposy, theta);
         
-    if d_last_target < lookahead_distance ||  target_index > size(path, 1)
-        goal_reached = true;
-        twistMsg.Linear.X = 0;
-        twistMsg.Angular.Z = 0;
-        path_ready_flag=false;
-
-    end
+%     if d_last_target < lookahead_distance ||  target_index > size(path, 1)
+%         goal_reached = true;
+%         twistMsg.Linear.X = 0;
+%         twistMsg.Angular.Z = 0;
+%         path_ready_flag=false;
+% 
+%     end
     twistMsg.Linear.X = max_speed;
     twistMsg.Angular.Z = steering_angle;
-     if norm([startposx - Gx startposy - Gy]) <= 0.5
+       pdist2([startposx, startposy], [Gx,Gy], 'euclidean')
+    if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 1
      %if abs(startposx - Gx) <= 1 && abs(startposy - Gy) <= 1
 
-         path_ready_flag = false;
 
            twistMsg.Linear.X = 0;
 
            twistMsg.Angular.Z = 0;
+           path_ready_flag = false;
+            send(pub, twistMsg);
 
-        
     end
+   
     % Publish the Twist message to the '/cmd_vel' topic
     send(pub, twistMsg);
     end

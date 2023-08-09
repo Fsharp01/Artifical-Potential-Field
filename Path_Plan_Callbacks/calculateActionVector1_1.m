@@ -5,8 +5,8 @@ x = position(1);
 y = position(2);
 % 
 % % Calculate the Euclidean distance between the two points
-d = sqrt(double((x - xG)^2) + double((y - yG)^2));
-angle = atan2(double(yG - y), double(xG - x));
+d = sqrt((x - xG)^2 + (y - yG)^2);
+angle = atan2(yG - y, xG - x);
 if d < r
 actionVector = [0, 0];
 elseif r <= d && d <= s + r

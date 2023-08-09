@@ -9,33 +9,37 @@ function moveBaseGoalCallback(~, msg3)
    global pub_path
    global pathMsg
    global pubPath
-   path_ready_flag = false;
-load mapInfo.mat;
-load OccupancyGridData.mat;
- mapWidth = mapInfo.Width;
- mapHeight = mapInfo.Height;
- resolution=0.1;
+   global Controllplot
+   global PathnInitplot
+   global MovingPathplot
+   global X
+   global Y
+   global x
+   global y
+    global occupancyMap
+    global mapWidth 
+    global mapHeight
+    global y2
+    global x2
+ path_ready_flag = false;
+resolution=0.1;
 
-%Plot flags
-Controllplot=0;
-PathnInitplot=0;
-MovingPathplot=0;
 
 %Define Goal
-step_size = 0.095;
-goal_treshold=0.01;
-radius_G=1;
+step_size = 0.08;
+goal_treshold=0.015;
+radius_G=0.2;
 spread=26;
-constant=5;
+constant=8;
 r = radius_G;
-max_speed=0.65;
+max_speed=0.1;
 
 %define the obstackle position and radius
 
 xO=-9.945;
 yO=4.914;
 obstacle = [xO, yO];
-radius_O=3; %3
+radius_O=1; %3
 spread_O=10; %10
 constant_O=-0.5;
 r2 = radius_O;
@@ -46,7 +50,7 @@ xO2=5.125;
 yO2=-5.039;
 obstacle2 = [xO2, yO2];
 radius_O2=1;
-spread_O2=5;
+spread_O2=10;
 constant_O2=-0.5;
 r3 = radius_O2;
 
@@ -88,14 +92,14 @@ y1 = startposy;
 
 for i = 1:numel(X)
     position = [X(i), Y(i)];
-    actionVector = calculateActionVector(position, xG, yG, r, s, k);
+    actionVector = calculateActionVector1_1(position, xG, yG, r, s, k);
     Vx_G(i) = actionVector(1);  %goal
     Vy_G(i) = actionVector(2);
-    actionVector2 = calculateActionVector2(position, xO, yO, r2, s2, k2);
+    actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2);
     Vx_O(i)=actionVector2(1); %obstacle
     Vy_O(i)=actionVector2(2);
 
-    actionVector3 = calculateActionVector3(position, xO2, yO2, r3, s3, k3);
+    actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3);
     Vx_O2(i)=actionVector3(1); %obstacle2
     Vy_O2(i)=actionVector3(2);
 
@@ -123,14 +127,14 @@ max_iterations = 300;
 tolerance = 0.1;
 dt = 0.1;
 path = [];
-safety_radius = 3;
+safety_radius = 0.8;
 
 % Run the simulation
 for i = 1:max_iterations
     % Calculate the index of the grid point that the robot is currently on
     [d, idx] = pdist2([X(:), Y(:)], [x1, y1], 'euclidean', 'Smallest', 1);
 
-    % Check if the robot has reached the goal
+    % Check if the robot has reached the goal %%%%%%%%%
 if pdist2([x1, y1], goal, 'euclidean') < 1
     fprintf('Goal reached after %d iterations\n', i);
     break;
@@ -164,7 +168,7 @@ end
  
 
     % Check for obstacle collision
-    d_obstacle = pdist2([x1, y1], obstacle, 'euclidean') - safety_radius;
+    d_obstacle = pdist2([x1, y1], obstacle, 'euclidean') - r2;
     if d_obstacle < r2
         % Adjust the velocity vector to steer away from the obstacle
         theta = atan2(y1 - obstacle(2), x1 - obstacle(1));
@@ -205,7 +209,7 @@ if d_obstacle2 < r3
         d_obstacle2 = pdist2([x1, y1], obstacle2, 'euclidean') - safety_radius;
 
         % Check if the robot has moved outside the field
-        if x1 < x(1) || x1 > x(end) || y1 < y(1) || y1 > y(end)
+        if x1 < X(1) || x1 > X(end) || y1 < Y(1) || y1 > Y(end) %itt
             fprintf('Robot moved outside the field after %d iterations\n', i);
             break;
         end
@@ -230,6 +234,8 @@ end
 % Pause for a short time to allow for visualization
 pause(0.01);
 end
+
+
 
 load blankPoseMsg-1;
 load blankPathMsg-1;
