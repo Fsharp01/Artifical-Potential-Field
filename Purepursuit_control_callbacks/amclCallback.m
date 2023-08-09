@@ -50,7 +50,7 @@ Gy=yG;
     twistMsg.Linear.X = max_speed;
     twistMsg.Angular.Z = steering_angle;
        pdist2([startposx, startposy], [Gx,Gy], 'euclidean')
-    if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 1
+    if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 0.5
      %if abs(startposx - Gx) <= 1 && abs(startposy - Gy) <= 1
 
 

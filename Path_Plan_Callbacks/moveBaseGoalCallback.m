@@ -26,13 +26,13 @@ resolution=0.1;
 
 
 %Define Goal
-step_size = 0.08;
-goal_treshold=0.015;
-radius_G=0.2;
+step_size = 0.06;
+goal_treshold=0.5;
+radius_G=0.1;
 spread=26;
 constant=8;
 r = radius_G;
-max_speed=0.1;
+max_speed=0.2;
 
 %define the obstackle position and radius
 
@@ -123,11 +123,11 @@ dx_array = [];
 dy_array = [];
 
 % Define the simulation parameters
-max_iterations = 300;
+max_iterations = 10000;
 tolerance = 0.1;
 dt = 0.1;
 path = [];
-safety_radius = 0.8;
+safety_radius = 0.5;
 
 % Run the simulation
 for i = 1:max_iterations
@@ -135,7 +135,7 @@ for i = 1:max_iterations
     [d, idx] = pdist2([X(:), Y(:)], [x1, y1], 'euclidean', 'Smallest', 1);
 
     % Check if the robot has reached the goal %%%%%%%%%
-if pdist2([x1, y1], goal, 'euclidean') < 1
+if pdist2([x1, y1], goal, 'euclidean') < goal_treshold
     fprintf('Goal reached after %d iterations\n', i);
     break;
 end
@@ -185,7 +185,7 @@ end
             d_obstacle = pdist2([x1, y1], obstacle, 'euclidean') - safety_radius;
             
             % Check if the robot has moved outside the field
-            if x1 < x(1) || x1 > x(end) || y1 < y(1) || y1 > y(end)
+            if x1 < X(1) || x1 > X(end) || y1 < Y(1) || y1 > Y(end)
                 fprintf('Robot moved outside the field after %d iterations\n', i);
                 break;
             end
