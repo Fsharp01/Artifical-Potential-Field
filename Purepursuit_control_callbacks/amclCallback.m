@@ -19,7 +19,7 @@ Gy=yG;
 
    target_index = 0;
    goal_reached = false;
-   max_speed = 0.25;
+   max_speed = 0.4;
     % Access the pose data from the message
     positionX = msg.Pose.Pose.Position.X;
     positionY = msg.Pose.Pose.Position.Y;
@@ -50,7 +50,7 @@ Gy=yG;
     twistMsg.Linear.X = max_speed;
     twistMsg.Angular.Z = steering_angle;
        pdist2([startposx, startposy], [Gx,Gy], 'euclidean')
-    if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 0.5
+    if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 0.225
      %if abs(startposx - Gx) <= 1 && abs(startposy - Gy) <= 1
 
 

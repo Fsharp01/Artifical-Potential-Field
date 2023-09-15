@@ -26,8 +26,8 @@ resolution=0.1;
 
 
 %Define Goal
-step_size = 0.06;
-goal_treshold=0.5;
+step_size = 0.05;
+goal_treshold=0.19;
 radius_G=0.1;
 spread=26;
 constant=8;
@@ -36,33 +36,33 @@ max_speed=0.2;
 
 %define the obstackle position and radius
 
-xO=-9.945;
-yO=4.914;
+xO=0.1044;
+yO=1.677;
 obstacle = [xO, yO];
-radius_O=1; %3
-spread_O=10; %10
+radius_O=0.5; %3
+spread_O=1; %10
 constant_O=-0.5;
 r2 = radius_O;
 
 %define the obstackle2 position and radius
 
-xO2=5.125;
-yO2=-5.039;
-obstacle2 = [xO2, yO2];
-radius_O2=1;
-spread_O2=10;
-constant_O2=-0.5;
-r3 = radius_O2;
+% xO2=5.125;
+% yO2=-5.039;
+% obstacle2 = [xO2, yO2];
+% radius_O2=1;
+% spread_O2=10;
+% constant_O2=-0.5;
+% r3 = radius_O2;
 
 % Define the field spread
 s = spread;
 s2=spread_O;
-s3=spread_O2;
+% s3=spread_O2;
 
 % Define the constant
 k = constant; %goal constant
 k2=constant_O;
-k3=constant_O2;
+% k3=constant_O2;
 
 
 
@@ -82,8 +82,8 @@ Vx_G = zeros(size(X));
 Vy_G = zeros(size(Y));
 Vx_O = zeros(size(X));
 Vy_O = zeros(size(Y));
-Vx_O2 = zeros(size(X));
-Vy_O2= zeros(size(Y));
+% Vx_O2 = zeros(size(X));
+% Vy_O2= zeros(size(Y));
 
 % Create empty arrays to store the robot's x and y positions
 x1 = startposx;
@@ -99,12 +99,14 @@ for i = 1:numel(X)
     Vx_O(i)=actionVector2(1); %obstacle
     Vy_O(i)=actionVector2(2);
 
-    actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3);
-    Vx_O2(i)=actionVector3(1); %obstacle2
-    Vy_O2(i)=actionVector3(2);
+%     actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3);
+%     Vx_O2(i)=actionVector3(1); %obstacle2
+%     Vy_O2(i)=actionVector3(2);
 
-    Vx=Vx_G+Vx_O+Vx_O2;  %sum
-    Vy=Vy_G+Vy_O+Vy_O2;
+     Vx=Vx_G+Vx_O;
+    % +Vx_O2;  %sum
+    Vy=Vy_G+Vy_O;
+    %+Vy_O2;
 
 end
 
@@ -192,29 +194,29 @@ end
         end
     end
     
-    % Check for obstacle2 collision
-d_obstacle2 = pdist2([x1, y1], obstacle2, 'euclidean') - safety_radius;
-if d_obstacle2 < r3
-    % Adjust the velocity vector to steer away from the obstacle
-    theta = atan2(y1 - obstacle2(2), x1 - obstacle2(1));
-    dx = max_speed * cos(theta + pi / 2);
-    dy = max_speed * sin(theta + pi / 2);
-
-    while d_obstacle2 < safety_radius
-        % Move the robot away from obstacle2
-        x1 = x1 + dx * dt;
-        y1 = y1 + dy * dt;
-
-        % Update the distance to obstacle2
-        d_obstacle2 = pdist2([x1, y1], obstacle2, 'euclidean') - safety_radius;
-
-        % Check if the robot has moved outside the field
-        if x1 < X(1) || x1 > X(end) || y1 < Y(1) || y1 > Y(end) %itt
-            fprintf('Robot moved outside the field after %d iterations\n', i);
-            break;
-        end
-    end
-end
+%     % Check for obstacle2 collision
+% d_obstacle2 = pdist2([x1, y1], obstacle2, 'euclidean') - safety_radius;
+% if d_obstacle2 < r3
+%     % Adjust the velocity vector to steer away from the obstacle
+%     theta = atan2(y1 - obstacle2(2), x1 - obstacle2(1));
+%     dx = max_speed * cos(theta + pi / 2);
+%     dy = max_speed * sin(theta + pi / 2);
+% 
+%     while d_obstacle2 < safety_radius
+%         % Move the robot away from obstacle2
+%         x1 = x1 + dx * dt;
+%         y1 = y1 + dy * dt;
+% 
+%         % Update the distance to obstacle2
+%         d_obstacle2 = pdist2([x1, y1], obstacle2, 'euclidean') - safety_radius;
+% 
+%         % Check if the robot has moved outside the field
+%         if x1 < X(1) || x1 > X(end) || y1 < Y(1) || y1 > Y(end) %itt
+%             fprintf('Robot moved outside the field after %d iterations\n', i);
+%             break;
+%         end
+%     end
+% end
 
 % Store the robot's current position in the path array
 path(end+1, :) = [x1, y1];
@@ -226,7 +228,7 @@ end
 
 
 % Check if the robot has reached the goal
-if abs(x1 - xG) <= 0.1 && abs(y1 - yG) <= 0.1
+if abs(x1 - xG) <= 0.1 && abs(y1 - yG) <= goal_treshold
     fprintf('Goal reached after %d iterations\n', i);
     break;
 end
