@@ -1,8 +1,8 @@
 
 clear all;
 rosshutdown
-% masterhost='http://192.168.32.129:1311';
-masterhost='http://10.0.2.2:11311';
+ masterhost='http://192.168.0.241:11311';
+%masterhost='http://10.0.2.2:11311';
 rosinit(masterhost)
 
 %% global Variables
@@ -34,6 +34,9 @@ global path
 global Controllplot
 global PathnInitplot
 global MovingPathplot
+global path_ready_flag
+
+timerset=0;
 %% Define the constans
 %plots
  Controllplot=0;
@@ -42,8 +45,11 @@ global MovingPathplot
 
 step_size = 0.4;
 %% Define a grid of points in the 2D space from the map info
-load mapInfo123_2.mat;
-load occupancyGridData123_2.mat;
+%load mapInfo123_2.mat;
+%load occupancyGridData123_2.mat;
+load mapInfo.mat
+load OccupancyGridData.mat
+
  mapWidth = mapInfo.Width;
  mapHeight = mapInfo.Height;
  resolution=0.1;
@@ -67,15 +73,28 @@ sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @mov
     pathMsg = blankPathMsg;
 %sub_laser=rossubscriber("/agent1/scan","sensor_msgs/LaserScan", @laserTransCallback);
 
-
-
-    
-
-
-
-
-
-
+% 
+% % Set the period for sending messages (in seconds)
+ period = 0.1; % Change this to your desired period
+% 
+% % Create a timer object
+ t = timer('ExecutionMode', 'fixedRate', 'Period', period, ...
+           'TimerFcn', "sendROSMessage(~)");
+% 
+% % Start the timer
+ if path_ready_flag==true
+     if timerset==0
+timerset=1;
+ start(t);
+     end
+ end
+if path_ready_flag==false
+    if timerset==1
+    timerset=0;
+stop(t);
+delete(t)
+    end
+end
 
 
 

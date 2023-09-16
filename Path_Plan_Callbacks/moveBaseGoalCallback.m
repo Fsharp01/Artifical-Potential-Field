@@ -134,7 +134,7 @@ safety_radius = 0.5;
 % Run the simulation
 for i = 1:max_iterations
     % Calculate the index of the grid point that the robot is currently on
-    [d, idx] = pdist2([X(:), Y(:)], [x1, y1], 'euclidean', 'Smallest', 1);
+    [~, idx] = pdist2([X(:), Y(:)], [x1, y1], 'euclidean', 'Smallest', 1);
 
     % Check if the robot has reached the goal %%%%%%%%%
 if pdist2([x1, y1], goal, 'euclidean') < goal_treshold
@@ -233,8 +233,6 @@ if abs(x1 - xG) <= 0.1 && abs(y1 - yG) <= goal_treshold
     break;
 end
 
-% Pause for a short time to allow for visualization
-pause(0.01);
 end
 
 
