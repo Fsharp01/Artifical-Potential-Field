@@ -14,12 +14,12 @@ function amclCallback(~,msg)
    global yG
    
  
-Gx=xG;
-Gy=yG;
+    Gx=xG;
+    Gy=yG;
 
-   target_index = 0;
-   goal_reached = false;
-   max_speed = 0.4;
+    target_index = 0;
+    goal_reached = false;
+    max_speed = 0.4;
     % Access the pose data from the message
     positionX = msg.Pose.Pose.Position.X;
     positionY = msg.Pose.Pose.Position.Y;

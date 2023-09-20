@@ -1,17 +1,29 @@
-function sendROSMessage(~)
-    global startposx
-   global startposy
-   global path
-   global d_last_target
-   global lookahead_distance
-   global target_index
-   global path_ready_flag;
-   global pub
-   global theta
-   global twistMsg
-   global xG
-   global yG
-   
+function sendROSMessage()
+
+
+global startposx
+global startposy
+global path
+global d_last_target
+global lookahead_distance
+global target_index
+global path_ready_flag;
+global pub
+global theta
+global twistMsg
+global xG
+global yG
+global t
+
+  target_index = 0;
+  goal_reached = false;
+  max_speed = 0.4;
+  
+% % Start the timer
+ if path_ready_flag==true
+    
+  Gx=xG;
+  Gy=yG;
 
     steering_angle = calculate_steering_angle(path, startposx, startposy, theta);
         
@@ -25,18 +37,22 @@ function sendROSMessage(~)
     twistMsg.Linear.X = max_speed;
     twistMsg.Angular.Z = steering_angle;
        pdist2([startposx, startposy], [Gx,Gy], 'euclidean')
-    if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 0.225
+
+
+   if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 0.225
      %if abs(startposx - Gx) <= 1 && abs(startposy - Gy) <= 1
 
 
-           twistMsg.Linear.X = 0;
+             twistMsg.Linear.X = 0;
 
-           twistMsg.Angular.Z = 0;
-           path_ready_flag = false;
+            twistMsg.Angular.Z = 0;
+            path_ready_flag = false;
             send(pub, twistMsg);
+            stop(t);
 
     end
    
     % Publish the Twist message to the '/cmd_vel' topic
     send(pub, twistMsg);
+ end
     end

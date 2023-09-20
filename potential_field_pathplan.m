@@ -1,8 +1,9 @@
 
 clear all;
 rosshutdown
- masterhost='http://192.168.0.241:11311';
-%masterhost='http://10.0.2.2:11311';
+%masterhost='http://192.168.32.129:1311';
+masterhost='http://192.168.32.129:1311';
+
 rosinit(masterhost)
 
 %% global Variables
@@ -35,6 +36,7 @@ global Controllplot
 global PathnInitplot
 global MovingPathplot
 global path_ready_flag
+global t
 
 timerset=0;
 %% Define the constans
@@ -59,7 +61,7 @@ load OccupancyGridData.mat
 %% Define a grid of points in the 2D space
 
 
-sub2 = rossubscriber('/agent2/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
+sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
 sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
 % sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
 
@@ -79,22 +81,10 @@ sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @mov
 % 
 % % Create a timer object
  t = timer('ExecutionMode', 'fixedRate', 'Period', period, ...
-           'TimerFcn', "sendROSMessage(~)");
-% 
-% % Start the timer
- if path_ready_flag==true
-     if timerset==0
-timerset=1;
- start(t);
-     end
- end
-if path_ready_flag==false
-    if timerset==1
-    timerset=0;
-stop(t);
-delete(t)
-    end
-end
+           'TimerFcn', "sendROSMessage()");
+
+ 
+
 
 
 
