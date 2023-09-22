@@ -16,8 +16,8 @@ function [x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData)
 
 %st123
 if simulation==0
-xrange = -42.4:0.3:84.8;
-yrange = -46.65:0.3:93.3;
+xrange = -4.24:0.1:8.48;
+yrange = -4.665:0.1:9.33;
 end
 if simulation ==1
 %simulation
