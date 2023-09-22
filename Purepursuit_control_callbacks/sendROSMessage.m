@@ -17,7 +17,7 @@ global t
 
   target_index = 0;
   goal_reached = false;
-  max_speed = 0.4;
+  max_speed = 0.2;
   
 % % Start the timer
  if path_ready_flag==true
@@ -48,11 +48,12 @@ global t
             twistMsg.Angular.Z = 0;
             path_ready_flag = false;
             send(pub, twistMsg);
-            stop(t);
+            
 
     end
    
     % Publish the Twist message to the '/cmd_vel' topic
     send(pub, twistMsg);
  end
+ stop(t);
     end

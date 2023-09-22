@@ -26,8 +26,8 @@ y_list = [y2];
 robot_position = [x2, y2];
 
 % Define the lookahead distance
-lookahead_distance = 0.4;
-max_speed = 1;
+lookahead_distance = 0.2;
+max_speed = 0.4;
 dt=0.1;
 max_iterations = 1000;
 % Define the vehicle parameters

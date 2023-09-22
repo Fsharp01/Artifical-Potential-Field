@@ -22,14 +22,20 @@ function moveBaseGoalCallback(~, msg3)
    global y2
    global x2
    global t
-   stop(t);
-   start(t);
+   global simulation
+stop(t);
+start(t);
  path_ready_flag = false;
 resolution=0.1;
 
 
 %Define Goal
-step_size = 0.05;
+if simulation==0
+step_size = 0.035;
+end
+if simulation==1
+    step_size=0.05;
+end
 goal_treshold=0.19;
 radius_G=0.1;
 spread=26;
@@ -92,7 +98,7 @@ Vy_O = zeros(size(Y));
 x1 = startposx;
 y1 = startposy;
 
-
+tic;
 for i = 1:numel(X)
     position = [X(i), Y(i)];
     actionVector = calculateActionVector1_1(position, xG, yG, r, s, k);
@@ -112,6 +118,8 @@ for i = 1:numel(X)
     %+Vy_O2;
 
 end
+elapsedTime1 = toc;
+    disp(['Potential calculation time:: ' num2str(elapsedTime1) ' seconds']);
 
 % Combine the x and y action vectors into a single matrix
 V = [Vx(:), Vy(:)];
@@ -133,7 +141,7 @@ tolerance = 0.1;
 dt = 0.1;
 path = [];
 safety_radius = 0.5;
-
+tic;
 % Run the simulation
 for i = 1:max_iterations
     % Calculate the index of the grid point that the robot is currently on
@@ -238,12 +246,15 @@ end
 
 end
 
-
+elapsedTime2 = toc;
+    disp(['Simulation time: ' num2str(elapsedTime2) ' seconds']);
 
 load blankPoseMsg-1;
 load blankPathMsg-1;
 
 %% Initilaize Path size
+path(end+1,1)=xG;
+path(end+1,2)=yG;
 maxSize = size(path,1);
 
 blankPoseMsgArray = repmat(blankPoseMsg,maxSize,1);

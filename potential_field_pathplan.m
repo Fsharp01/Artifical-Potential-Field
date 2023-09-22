@@ -54,10 +54,12 @@ if simulation==0
 load mapInfo123_2.mat;
 load occupancyGridData123_2.mat;
 end
+
 if simulation==1
 load mapInfo.mat
 load OccupancyGridData.mat
 end
+
  mapWidth = mapInfo.Width;
  mapHeight = mapInfo.Height;
  resolution=0.1;
@@ -83,13 +85,12 @@ sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @mov
 
 % 
 % % Set the period for sending messages (in seconds)
+
  period = 0.1; % Change this to your desired period
 % 
 % % Create a timer object
  t = timer('ExecutionMode', 'fixedRate', 'Period', period, ...
            'TimerFcn', "sendROSMessage()");
-
- 
 
 
 
