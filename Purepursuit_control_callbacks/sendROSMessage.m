@@ -48,7 +48,7 @@ global t
             twistMsg.Angular.Z = 0;
             path_ready_flag = false;
             send(pub, twistMsg);
-            stop(t);
+            
 
     end
    
