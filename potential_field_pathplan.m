@@ -37,7 +37,8 @@ global PathnInitplot
 global MovingPathplot
 global path_ready_flag
 global t
-
+global simulation
+simulation=1;
 timerset=0;
 %% Define the constans
 %plots
@@ -47,11 +48,14 @@ timerset=0;
 
 step_size = 0.4;
 %% Define a grid of points in the 2D space from the map info
+if simulation==0
 load mapInfo123_2.mat;
 load occupancyGridData123_2.mat;
-%load mapInfo.mat
-%load OccupancyGridData.mat
-
+end
+if simulation==1
+load mapInfo.mat
+load OccupancyGridData.mat
+end
  mapWidth = mapInfo.Width;
  mapHeight = mapInfo.Height;
  resolution=0.1;

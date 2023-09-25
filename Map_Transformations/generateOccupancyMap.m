@@ -1,4 +1,5 @@
 function [x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData)
+global simulation
     resolution =0.1;
     mapWidth = mapInfo.Width;
     mapHeight = mapInfo.Height;
@@ -12,11 +13,14 @@ function [x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData)
 %y_coords = ((mapHeight/2-mapHeight)*resolution):(floor(mapHeight/2)*resolution);
 %[x, y] = meshgrid(x_coords, y_coords);
 
-
+if simulation==0
 xrange = -4.24:0.1:8.48;
 yrange = -4.665:0.1:9.33;
-%xrange = -13.7:0.1:27.4;
-%yrange = -12.2:0.1:24.4;
+end
+if simulation==1
+xrange = -13.7:0.3:27.4;
+yrange = -12.2:0.3:24.4;
+ end
 [x, y] = meshgrid(xrange, yrange);
 x=double(x);
 y=double(y);
