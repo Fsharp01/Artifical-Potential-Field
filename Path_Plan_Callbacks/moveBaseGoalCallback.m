@@ -22,8 +22,7 @@ function moveBaseGoalCallback(~, msg3)
    global y2
    global x2
    global t
-   stop(t);
-   start(t);
+  
  path_ready_flag = false;
 resolution=0.1;
 

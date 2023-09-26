@@ -15,8 +15,8 @@ function [x, y, occupancyMap] = generateOccupancyMap(mapInfo, occupancyGridData)
 
 xrange = -4.24:0.1:8.48;
 yrange = -4.665:0.1:9.33;
-%xrange = -13.7:0.1:27.4;
-%yrange = -12.2:0.1:24.4;
+%xrange = -13.7:0.4:27.4;
+%yrange = -12.2:0.4:24.4;
 [x, y] = meshgrid(xrange, yrange);
 x=double(x);
 y=double(y);
