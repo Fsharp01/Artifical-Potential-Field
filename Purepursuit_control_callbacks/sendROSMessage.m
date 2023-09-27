@@ -15,9 +15,9 @@ global xG
 global yG
 global t
 
-  target_index = 0;
+
   goal_reached = false;
-  max_speed = 0.4;
+  max_speed = 0.2;
   
 % % Start the timer
  if path_ready_flag==true
@@ -39,7 +39,7 @@ global t
        pdist2([startposx, startposy], [Gx,Gy], 'euclidean')
 
 
-   if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 0.225
+   if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 0.27
      %if abs(startposx - Gx) <= 1 && abs(startposy - Gy) <= 1
 
 
@@ -47,7 +47,7 @@ global t
 
             twistMsg.Angular.Z = 0;
             path_ready_flag = false;
-            send(pub, twistMsg);
+            
             
 
     end

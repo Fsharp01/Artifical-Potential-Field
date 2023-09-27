@@ -1,8 +1,6 @@
 
-clear all;
-rosshutdown
-%masterhost='http://192.168.32.129:1311';
-masterhost='http://10.0.2.2:11311';
+%masterhost='http://10.0.2.2:11311';
+masterhost='http://192.168.32.129:1311';
 
 rosinit(masterhost)
 
@@ -65,7 +63,7 @@ end
 %% Define a grid of points in the 2D space
 
 
-sub2 = rossubscriber('/agent2/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
+sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
 sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
 % sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
 
@@ -79,14 +77,14 @@ sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @mov
     pathMsg = blankPathMsg;
 %sub_laser=rossubscriber("/agent1/scan","sensor_msgs/LaserScan", @laserTransCallback);
 
-% 
+
 % % Set the period for sending messages (in seconds)
  period = 0.1; % Change this to your desired period
 % 
 % % Create a timer object
  t = timer('ExecutionMode', 'fixedRate', 'Period', period, ...
            'TimerFcn', "sendROSMessage()");
-
+start(t);
  
 
 

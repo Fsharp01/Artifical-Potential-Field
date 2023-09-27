@@ -18,9 +18,9 @@ xrange = -4.24:0.1:8.48;
 yrange = -4.665:0.1:9.33;
 end
 if simulation==1
-xrange = -13.7:0.3:27.4;
-yrange = -12.2:0.3:24.4;
- end
+xrange = -13.7:0.4:27.4;
+yrange = -12.2:0.4:24.4;
+end
 [x, y] = meshgrid(xrange, yrange);
 x=double(x);
 y=double(y);

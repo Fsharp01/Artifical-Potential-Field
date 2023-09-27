@@ -65,7 +65,7 @@ function amclCallback(~,msg)
 %     % Publish the Twist message to the '/cmd_vel' topic
 %     send(pub, twistMsg);
 %     end
-% 
+
 end
 % 
 
