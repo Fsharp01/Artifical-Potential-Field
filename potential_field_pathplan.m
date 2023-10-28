@@ -1,6 +1,6 @@
 
 %masterhost='http://10.0.2.2:11311';
-masterhost='http://192.168.32.129:1311';
+masterhost='http://localhost:11311';
 
 rosinit(masterhost)
 
@@ -36,7 +36,7 @@ global MovingPathplot
 global path_ready_flag
 global t
 global simulation
-simulation=1;
+simulation=0;
 timerset=0;
 %% Define the constans
 %plots
@@ -47,8 +47,8 @@ timerset=0;
 step_size = 0.4;
 %% Define a grid of points in the 2D space from the map info
 if simulation==0
-load mapInfo123_2.mat;
-load occupancyGridData123_2.mat;
+load mapinfo123_4.mat;
+load occupancyGridData123_4.mat;
 end
 if simulation==1
 load mapInfo.mat
@@ -63,9 +63,9 @@ end
 %% Define a grid of points in the 2D space
 
 
-sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
+sub2 = rossubscriber('/agent2/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
 sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
-% sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
+ %sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
 
 
  

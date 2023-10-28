@@ -6,7 +6,7 @@ function mapTransCallback(~, message)
    global X
    global Y
 
-   load FixOccupancyMap.mat;
+   %load FixOccupancyMap.mat;
   
     occupancyGridData = message.Data;
     mapInfo = message.Info;

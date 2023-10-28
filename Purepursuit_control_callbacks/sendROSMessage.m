@@ -39,7 +39,7 @@ global t
        pdist2([startposx, startposy], [Gx,Gy], 'euclidean')
 
 
-   if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 0.27
+   if pdist2([startposx, startposy], [Gx,Gy], 'euclidean') <= 0.28
      %if abs(startposx - Gx) <= 1 && abs(startposy - Gy) <= 1
 
 
