@@ -38,8 +38,8 @@ if simulation==1
 end
 goal_treshold=0.19;
 radius_G=0.1;
-spread=26;
-constant=8;
+spread=18;
+constant=0.2;
 r = radius_G;
 max_speed=0.2;
 
@@ -53,15 +53,26 @@ spread_O=1; %10
 constant_O=-0.5;
 r2 = radius_O;
 
-%define the obstackle2 position and radius
+%define the obstackle position, width, length
+xO2=-0.8450;
+yO2=-0.249;
+xO3=0.29210;
+yO3=3.3349;
+xO4=1.9981;
+yO4=3.0759;
+xO5=3.1846;
+yO5=1.3547;
+k3 = 40;
 
-% xO2=5.125;
-% yO2=-5.039;
-% obstacle2 = [xO2, yO2];
-% radius_O2=1;
-% spread_O2=10;
-% constant_O2=-0.5;
-% r3 = radius_O2;
+% Define the corner coordinates for each rectangle
+rectangle1 = [-1.0809, -0.6460, -1.2206, -0.5124, -0.5353, -0.0339, -0.6449, 0.0462];
+rectangle2 = [-0.00121, 3.7912, -0.10405, 3.7121, 0.72295, 2.9338, 0.601, 2.83959];
+rectangle3 = [2.3873, 3.551, 2.55752, 3.4406, 1.4535, 2.6948, 1.57040, 2.5500];
+rectangle4 = [3.8676, 0.6679, 3.7379, 0.5243, 2.63811, 2.1388, 2.4972, 2.04466];
+
+corner_coordinates = [rectangle1; rectangle2; rectangle3; rectangle4];
+[w2, h2, w3, h3, w4, h4, w5, h5] = calculate_dimensions(corner_coordinates);
+
 
 % Define the field spread
 s = spread;
@@ -91,6 +102,14 @@ Vx_G = zeros(size(X));
 Vy_G = zeros(size(Y));
 Vx_O = zeros(size(X));
 Vy_O = zeros(size(Y));
+Vx_O3 = zeros(size(X));
+Vy_O3 = zeros(size(Y));
+Vx_O4 = zeros(size(X));
+Vy_O4 = zeros(size(Y));
+Vx_O5 = zeros(size(X));
+Vy_O5 = zeros(size(Y));
+Vx_O6 = zeros(size(X));
+Vy_O6 = zeros(size(Y));
 % Vx_O2 = zeros(size(X));
 % Vy_O2= zeros(size(Y));
 
@@ -104,18 +123,30 @@ for i = 1:numel(X)
     actionVector = calculateActionVector1_1(position, xG, yG, r, s, k);
     Vx_G(i) = actionVector(1);  %goal
     Vy_G(i) = actionVector(2);
-    actionVector2 = calculateActionVector1_2(position, xO, yO, r2, s2, k2);
+    actionVector2 =  calculateActionVector1_2(position, xO, yO, r2, s2, k2);
     Vx_O(i)=actionVector2(1); %obstacle
     Vy_O(i)=actionVector2(2);
 
-%     actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3);
-%     Vx_O2(i)=actionVector3(1); %obstacle2
-%     Vy_O2(i)=actionVector3(2);
+    actionVector3 = calculateActionVector1_3(position, xO2, yO2, w2, h2, k3);
+    Vx_O3(i)=actionVector3(1); %obstacle2
+    Vy_O3(i)=actionVector3(2);
 
-     Vx=Vx_G+Vx_O;
-    % +Vx_O2;  %sum
-    Vy=Vy_G+Vy_O;
-    %+Vy_O2;
+    actionVector4 = calculateActionVector1_4(position, xO3, yO3, w3, h3, k3);
+    Vx_O4(i)=actionVector4(1); %obstacle2
+    Vy_O4(i)=actionVector4(2);
+
+        
+    actionVector5 = calculateActionVector1_5(position, xO4, yO4, w4, h4, k3);
+    Vx_O5(i)=actionVector5(1); %obstacle2
+    Vy_O5(i)=actionVector5(2);
+
+        
+    actionVector6 = calculateActionVector1_6(position, xO5, yO5, w5, h5, k3);
+    Vx_O6(i)=actionVector6(1); %obstacle2
+    Vy_O6(i)=actionVector6(2);
+
+    Vx=Vx_G+Vx_O+Vx_O3+Vx_O5+Vx_O5+Vx_O6;  %sum
+    Vy=Vy_G+Vy_O+Vy_O3+Vy_O4+Vy_O5+Vy_O6;
 
 end
 elapsedTime1 = toc;
@@ -123,6 +154,7 @@ elapsedTime1 = toc;
 
 % Combine the x and y action vectors into a single matrix
 V = [Vx(:), Vy(:)];
+quiver(X, Y, Vx, Vy);
 % Define the initial position and velocity of the robot
 dx = 0;
 dy = 0;

@@ -1,17 +1,24 @@
 % Define a function to calculate the action vector for obstacle2
-function actionVector3 = calculateActionVector1_3(position, xO2, yO2, r3, s3, k3)
-x = position(1);
-y = position(2);
-% dist = [x y; xO2 yO2];
-% 
-d3 = sqrt(double((x-xO2)^2) + double((y - yO2)^2));
-angle2 = atan2(double(yO2 - y), double(xO2 - x));
-if d3 < r3
-actionVector3(1) = -sign(cos(angle2))*80;
-actionVector3(2) = -sign(sin(angle2))*80;
-elseif r3 <= d3 && d3 <= s3 + r3
-actionVector3 = -k3 * (s3+r3-d3) * [cos(angle2), sin(angle2)];
-else
-actionVector3 = [0, 0];
-end
+function actionVector3 = calculateActionVector1_3(position, xO2, yO2, w2, h2, k3)
+    x = position(1);
+    y = position(2);
+    
+    left = xO2 - w2/2;
+    right = xO2 + w2/2;
+    top = yO2 + h2/2;
+    bottom = yO2 - h2/2;
+    
+    if x >= left && x <= right && y >= bottom && y <= top
+        if abs(x - left) < abs(x - right) % Closest to left side
+            actionVector3 = [-k3, 0];
+        elseif abs(x - left) > abs(x - right) % Closest to right side
+            actionVector3 = [k3, 0];
+        elseif abs(y - bottom) < abs(y - top) % Closest to bottom side
+            actionVector3 = [0, -k3];
+        else % Closest to top side
+            actionVector3 = [0, k3];
+        end
+    else
+        actionVector3 = [0, 0];
+    end
 end
