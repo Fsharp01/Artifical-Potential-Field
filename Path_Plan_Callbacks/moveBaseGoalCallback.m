@@ -6,6 +6,10 @@ function moveBaseGoalCallback(~, msg3)
    global path_ready_flag
    global xG
    global yG
+    global xO2
+   global yO2
+   global xO3
+   global yoxd
    global pub_path
    global pathMsg
    global pubPath
@@ -28,21 +32,22 @@ resolution=0.1;
 
 
 %Define Goal
-step_size = 0.05;
+step_size = 0.035;
 goal_treshold=0.19;
 radius_G=0.1;
 spread=26;
-constant=8;
+constant=0.4;
 r = radius_G;
-max_speed=0.2;
+max_speed=0.3;
+
 
 %define the obstackle position and radius
 
-xO=0.1044;
-yO=1.677;
+xO=1.1639;
+yO=0.7737;
 obstacle = [xO, yO];
-radius_O=0.5; %3
-spread_O=1; %10
+radius_O=0.3; %3
+spread_O=1.3; %10
 constant_O=-0.5;
 r2 = radius_O;
 
@@ -268,7 +273,7 @@ end
 pathMsg.Header.FrameId = 'map';
 
 send(pubPath,pathMsg);
-path_ready_flag = true;
+path_ready_flag = false;
 
 
 

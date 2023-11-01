@@ -1,12 +1,14 @@
 
 %masterhost='http://10.0.2.2:11311';
-masterhost='http://localhost:11311';
+masterhost='http://192.168.32.129:1311';
 
 rosinit(masterhost)
 
 %% global Variables
 global x
 global y
+global xO2
+global yO2
 global X
 global Y
 global theta
@@ -47,8 +49,8 @@ timerset=0;
 step_size = 0.4;
 %% Define a grid of points in the 2D space from the map info
 if simulation==0
-load mapinfo123_4.mat;
-load occupancyGridData123_4.mat;
+load mapinfov2.mat;
+load occupancyGridDatav2.mat;
 end
 if simulation==1
 load mapInfo.mat
@@ -63,7 +65,7 @@ end
 %% Define a grid of points in the 2D space
 
 
-sub2 = rossubscriber('/agent2/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
+sub2 = rossubscriber('/agent1/pose/amcl', 'geometry_msgs/PoseWithCovarianceStamped',@amclCallback);
 sub3 = rossubscriber('/move_base_simple/goal', 'geometry_msgs/PoseStamped', @moveBaseGoalCallback);
  %sub_map= rossubscriber("/map", "nav_msgs/OccupancyGrid", @mapTransCallback);
 

@@ -14,8 +14,8 @@ global simulation
 %[x, y] = meshgrid(x_coords, y_coords);
 
 if simulation==0
-xrange = -3:0.1:7;
-yrange = 5.735:-0.1:-2.635;
+xrange = -3.975:0.2:7.95;
+yrange = -3.87:0.2:7.74;
 end
 if simulation==1
 xrange = -13.7:0.4:27.4;
@@ -27,7 +27,7 @@ y=double(y);
 
 
    occupancyMap = reshape(occupancyGridData, mapWidth, mapHeight)';
-    %occupancyMap = flipud(occupancyMap);
+    occupancyMap = flipud(occupancyMap);
      
     cmap = [1 1 1; 0 0 0; 0.5 0.5 0.5];
 
@@ -38,7 +38,7 @@ y=double(y);
     xlabel('X');
     ylabel('Y');
     title('Global Occupancy Map');
-    set(gca,'YtickLabel',5.735:-1:-2.635);
+   % set(gca,'YtickLabel',5.735:-1:-2.635);
     caxis([-1 100]);
     ticks = linspace(-1,100,6);
     labels = {'Unknown', 'Free', '', '', '', 'Occupied'};
